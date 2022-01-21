@@ -1,21 +1,5 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
-## Form generated from reading UI file 'testwindow.ui'
-##
-## Created by: Qt User Interface Compiler version 6.2.1
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
-
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
-    QCursor, QFont, QFontDatabase, QGradient,
-    QIcon, QImage, QKeySequence, QLinearGradient,
-    QPainter, QPalette, QPixmap, QRadialGradient,
-    QTransform)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Slot)
+from PySide6.QtGui import (QAction)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QHBoxLayout,
     QLabel, QMainWindow, QMenu, QMenuBar,
     QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
@@ -184,25 +168,32 @@ class Ui_TestWindow(object):
     def retranslateUi(self, TestWindow):
         TestWindow.setWindowTitle(QCoreApplication.translate("TestWindow", u"MainWindow", None))
         self.actionExit.setText(QCoreApplication.translate("TestWindow", u"Exit", None))
+
         self.pushButton_2.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
+
         self.checkBox.setText(QCoreApplication.translate("TestWindow", u"CheckBox", None))
         self.checkBox_2.setText(QCoreApplication.translate("TestWindow", u"CheckBox", None))
+
         self.label.setText(QCoreApplication.translate("TestWindow", u"TextLabel", None))
         self.pushButton_27.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_28.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_29.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_30.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
+
         self.label_2.setText(QCoreApplication.translate("TestWindow", u"TextLabel", None))
         self.pushButton_31.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_32.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_33.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_34.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
+
         self.label_3.setText(QCoreApplication.translate("TestWindow", u"TextLabel", None))
         self.pushButton_11.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_12.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_13.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.pushButton_14.setText(QCoreApplication.translate("TestWindow", u"PushButton", None))
         self.menuTest_tool.setTitle(QCoreApplication.translate("TestWindow", u"Test tool", None))
-    # retranslateUi
 
+    @Slot()
+    def test_behaviour(self):
+        pass
