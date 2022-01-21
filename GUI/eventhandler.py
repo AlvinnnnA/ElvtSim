@@ -101,8 +101,8 @@ if __name__ == '__main__':
     print("main process running",multiprocessing.current_process().pid, "\n")
 
     # handler = eventHandler(err)
-    handler_instace = multiprocessing.Process(target=EventHandler, args=(err,))
-    handler_instace.start()  # 启动事件处理器
+    handler_instance = multiprocessing.Process(target=EventHandler, args=(err,))
+    handler_instance.start()  # 启动事件处理器
 
     mgr_process = multiprocessing.Process(target=WorkManager, args=(err, config))
     mgr_process.start()  # 启动工作管理器

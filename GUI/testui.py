@@ -1,12 +1,12 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
-from GUI.mainwindow import Ui_MainWindow
+from testwindow import Ui_TestWindow
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_TestWindow()
         self.ui.setupUi(self)
 
 
