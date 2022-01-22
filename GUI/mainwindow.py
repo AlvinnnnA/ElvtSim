@@ -52,3 +52,12 @@ class Ui_MainWindow(object):
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
     # retranslateUi
 
+    def error_handle(self):
+        pass
+
+    def event_handle(self):
+        pass
+
+    def process_handle(self):
+        pass
+
