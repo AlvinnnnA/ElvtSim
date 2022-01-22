@@ -6,29 +6,10 @@ from PySide6.QtCore import *
 from PySide6.QtGui import (QAction, QTextCursor)
 from PySide6.QtWidgets import *
 from common_objects import *
+from wheels import *
 import multiprocessing
 import eventhandler
 import sys
-
-
-class ElvtTeamEventPrompt(QMessageBox):
-
-    # This is a much better way to extend __init__
-    def __init__(self, *args, **kwargs):
-        super(ElvtTeamEventPrompt, self).__init__(*args, **kwargs)
-        # Anything else you want goes below
-
-    # We only need to extend resizeEvent, not every event.
-    def resizeEvent(self, event):
-
-        result = super(ElvtTeamEventPrompt, self).resizeEvent(event)
-
-        details_box = self.findChild(QTextEdit)
-        # 'is not' is better style than '!=' for None
-        if details_box is not None:
-            details_box.setFixedSize(details_box.sizeHint())
-
-        return result
 
 
 class EmittingStr(QObject):
@@ -299,8 +280,18 @@ class Ui_TestWindow(object):
 
 
 
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_TestWindow()
+        self.ui.setupUi(self)
 
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
 
 
 
