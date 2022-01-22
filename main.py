@@ -10,8 +10,12 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
 
-if __name__ == '__main__':
+def activate():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+
+if __name__ == '__main__':
+    activate()

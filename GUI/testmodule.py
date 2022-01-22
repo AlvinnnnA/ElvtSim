@@ -1,20 +1,49 @@
+'''
+这里是图形化测试工具！！
+'''
+import multiprocessing
+import os
+import traceback
+
 from PySide6.QtCore import *
 from PySide6.QtGui import (QAction, QTextCursor)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QHBoxLayout,
-                               QLabel, QMainWindow, QMenu, QMenuBar,
-                               QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
-                               QVBoxLayout, QWidget, QTextEdit)
-import eventhandler,sys
+from PySide6.QtWidgets import *
+from common_objects import *
+import multiprocessing
+import eventhandler
+import main
+import sys
+
+
+class ElvtTeamEventPrompt(QMessageBox):
+
+    # This is a much better way to extend __init__
+    def __init__(self, *args, **kwargs):
+        super(ElvtTeamEventPrompt, self).__init__(*args, **kwargs)
+        # Anything else you want goes below
+
+    # We only need to extend resizeEvent, not every event.
+    def resizeEvent(self, event):
+
+        result = super(ElvtTeamEventPrompt, self).resizeEvent(event)
+
+        details_box = self.findChild(QTextEdit)
+        # 'is not' is better style than '!=' for None
+        if details_box is not None:
+            details_box.setFixedSize(details_box.sizeHint())
+
+        return result
 
 
 class EmittingStr(QObject):
-    textWritten = Signal(str)  # 定义一个发送str的信号，这里用的方法名与PyQt5不一样
+    textWritten = Signal(str)  # 定义一个发送str的信号
 
     def write(self, text):
         self.textWritten.emit(str(text))
         loop = QEventLoop()
         QTimer.singleShot(100, loop.quit)
         loop.exec()
+
 
 class Ui_TestWindow(object):
     def setupUi(self, TestWindow):
@@ -184,7 +213,8 @@ class Ui_TestWindow(object):
 
         self.pushButton_2.setText(QCoreApplication.translate("TestWindow", u"Exit", None))
         self.pushButton_2.clicked.connect(TestWindow.close)
-        self.pushButton.setText(QCoreApplication.translate("TestWindow", u"Main window", None))
+        self.pushButton.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
+        self.pushButton.clicked.connect(self.TestWindow.close)
 
         self.checkBox.setText(QCoreApplication.translate("TestWindow", u"CheckBox", None))
         self.checkBox_2.setText(QCoreApplication.translate("TestWindow", u"CheckBox", None))
@@ -203,19 +233,21 @@ class Ui_TestWindow(object):
         self.pushButton_33.setText(QCoreApplication.translate("TestWindow", u"User dispatcher", None))
         self.pushButton_34.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
 
-        self.label_3.setText(QCoreApplication.translate("TestWindow", u"File IO", None))
-        self.pushButton_11.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
-        self.pushButton_12.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
+        self.label_3.setText(QCoreApplication.translate("TestWindow", u"GUI", None))
+        self.pushButton_11.setText(QCoreApplication.translate("TestWindow", u"Error Prompt", None))
+        self.pushButton_11.clicked.connect(self.error_prompt_test)
+        self.pushButton_12.setText(QCoreApplication.translate("TestWindow", u"Info Dialog", None))
+        self.pushButton_12.clicked.connect(self.info_diag_test)
         self.pushButton_13.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
         self.pushButton_14.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
         self.menuTest_tool.setTitle(QCoreApplication.translate("TestWindow", u"Test tool", None))
         sys.stdout = EmittingStr()
-        self.log_output.connect(sys.stdout, SIGNAL("textWritten(QString)"), self.outputWritten)
+        self.log_output.connect(sys.stdout, SIGNAL("textWritten(QString)"), self.output_written)
         sys.stderr = EmittingStr()
-        self.log_output.connect(sys.stderr, SIGNAL("textWritten(QString)"), self.outputWritten)
+        self.log_output.connect(sys.stderr, SIGNAL("textWritten(QString)"), self.output_written)
 
     @Slot()
-    def outputWritten(self, text):
+    def output_written(self, text):
         # self.textEdit.clear()
         cursor = self.log_output.textCursor()
         cursor.movePosition(QTextCursor.End)
@@ -230,6 +262,41 @@ class Ui_TestWindow(object):
     @Slot()
     def configgen_self_test(self):
         pass
+
+    @Slot()
+    def error_prompt_test(self):
+        try:
+            eventhandler.suicide()
+        except AttributeError as error:
+            error_event = Event("Error", traceback.format_exc(), multiprocessing.current_process().pid)
+            self.event_prompt(error_event)
+
+    @Slot()
+    def info_diag_test(self):
+        info = Event("Info", "This is a self test message!", multiprocessing.current_process().pid)
+        self.event_prompt(info)
+
+    def event_prompt(self, event: Event):
+        err_prompt = ElvtTeamEventPrompt()
+
+        if event.eventtype == "Error":
+            err_prompt.setText("发生了错误！")
+            err_prompt.setIcon(err_prompt.Icon.Critical)
+            err_prompt.setDetailedText("Error occurred at process " +
+                                       str(event.pid) +
+                                       "\nError info is as belows\n" +
+                                       event.eventinfo)
+        elif event.eventtype == "Info":
+            err_prompt.setText("提示")
+            err_prompt.setIcon(err_prompt.Icon.Information)
+            err_prompt.setDetailedText("Info raised at process " +
+                                       str(event.pid) +
+                                       "\nInfo reads as belows\n" +
+                                       event.eventinfo)
+
+        err_prompt.setStandardButtons(QMessageBox.Ok)
+        err_prompt.exec()
+
 
 
 

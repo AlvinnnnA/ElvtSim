@@ -1,27 +1,23 @@
-# 测试事件处理器
+'''
+测试事件处理器
+'''
 import multiprocessing
 import time
 from threading import Thread, Timer
+from common_objects import *
 from mainwindow import *
+
+
+def instruction_process(event: Event):
+    if event.eventinfo == "Error":
+        pass
+
+
 HANDLER_DICT = {"Error": Ui_MainWindow.error_handle,
                 "Info": Ui_MainWindow.event_handle,
                 "Progress": Ui_MainWindow.process_handle,
-                "Instruction": None
-                }  #instruction_guide}
-
-
-class Event:  # 事件类型定义
-    def __init__(self, eventtype: str, eventinfo: str, pid: int):
-        self.eventinfo = eventinfo
-        self.eventtype = eventtype
-        self.pid = pid
-        self.time = time.time()
-
-    def print_data(self):  # 输出事件信息的方法
-        print("Event type is", self.eventtype)
-        print("Event info is", self.eventinfo)
-        print("Event is from process", self.pid)
-        print("created at", self.time, "\n")
+                "Instruction": instruction_process
+                }
 
 
 class EventHandler:
@@ -52,11 +48,8 @@ class EventHandler:
             print("Handler Process", multiprocessing.current_process().pid,
                   "Got Data", gotevent)
             gotevent.print_data()
-        if gotevent.eventtype == "Instruction":  # 实现特定事件传入关闭侦听器
-            if gotevent.eventinfo == "Stop handler":
-                self.__active = False
-            else:
-                HANDLER_DICT["Instruction"](gotevent)
+        if gotevent.eventinfo == "Stop handler":
+            self.kill_listener()
         else:
             HANDLER_DICT[gotevent.eventtype]()
 
@@ -65,6 +58,13 @@ class EventHandler:
         if self.__verbose:
             print("activating listener")
         self.__listener.start()
+
+    def kill_listener(self):
+        if self.__verbose:
+            print("Terminating listener")
+        self.__active = False
+        if self.__verbose:
+            print("Terminated listener")
 
     def activate_verbose(self):
         self.__verbose = True
@@ -76,7 +76,13 @@ def kill_handler(queue: multiprocessing.Queue):
     queue.put(stop_event)
 
 
+def suicide():
+    a = 1
+    a.append("a")
+
+
 def self_test():
+    print("Event handler self test")
     err = multiprocessing.Queue()
 
     handler = EventHandler(err)
@@ -87,5 +93,3 @@ def self_test():
 
     killer = Timer(5, kill_handler, args=(err,))
     killer.start()
-
-
