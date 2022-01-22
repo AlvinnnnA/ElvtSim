@@ -1,6 +1,6 @@
-'''
+"""
 测试事件处理器
-'''
+"""
 import multiprocessing
 import time
 from threading import Thread, Timer

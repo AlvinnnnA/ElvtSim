@@ -1,17 +1,13 @@
-'''
+"""
 这里是图形化测试工具！！
-'''
-import multiprocessing
-import os
+"""
 import traceback
-
 from PySide6.QtCore import *
 from PySide6.QtGui import (QAction, QTextCursor)
 from PySide6.QtWidgets import *
 from common_objects import *
 import multiprocessing
 import eventhandler
-import main
 import sys
 
 
@@ -214,10 +210,10 @@ class Ui_TestWindow(object):
         self.pushButton_2.setText(QCoreApplication.translate("TestWindow", u"Exit", None))
         self.pushButton_2.clicked.connect(TestWindow.close)
         self.pushButton.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
-        self.pushButton.clicked.connect(self.TestWindow.close)
+        self.pushButton.clicked.connect(TestWindow.close)
 
-        self.checkBox.setText(QCoreApplication.translate("TestWindow", u"CheckBox", None))
-        self.checkBox_2.setText(QCoreApplication.translate("TestWindow", u"CheckBox", None))
+        self.checkBox.setText(QCoreApplication.translate("TestWindow", u"Config checker A", None))
+        self.checkBox_2.setText(QCoreApplication.translate("TestWindow", u"Config checker B", None))
 
         self.label.setText(QCoreApplication.translate("TestWindow", u"Core mechanism", None))
         self.pushButton_27.setText(QCoreApplication.translate("TestWindow", u"Event handler", None))
@@ -282,6 +278,7 @@ class Ui_TestWindow(object):
         if event.eventtype == "Error":
             err_prompt.setText("发生了错误！")
             err_prompt.setIcon(err_prompt.Icon.Critical)
+            err_prompt.setWindowTitle("错误")
             err_prompt.setDetailedText("Error occurred at process " +
                                        str(event.pid) +
                                        "\nError info is as belows\n" +
@@ -289,6 +286,7 @@ class Ui_TestWindow(object):
         elif event.eventtype == "Info":
             err_prompt.setText("提示")
             err_prompt.setIcon(err_prompt.Icon.Information)
+            err_prompt.setWindowTitle("信息")
             err_prompt.setDetailedText("Info raised at process " +
                                        str(event.pid) +
                                        "\nInfo reads as belows\n" +
