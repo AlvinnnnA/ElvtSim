@@ -3,7 +3,6 @@
 """
 import time
 
-
 class Event:  # 事件类型定义
     def __init__(self, eventtype: str, eventinfo: str, pid: int):
         self.eventinfo = eventinfo

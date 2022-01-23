@@ -4,15 +4,19 @@ from GUI.mainwindow import Ui_MainWindow
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, rate):
         super().__init__()
         self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self, rate)
 
 
 def activate():
     app = QApplication(sys.argv)
-    window = MainWindow()
+    screen = app.screens()[0]
+    dpi = screen.devicePixelRatio()
+    #dpi = 1.4
+    print((dpi))
+    window = MainWindow(dpi)
     window.show()
     sys.exit(app.exec())
 

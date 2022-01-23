@@ -8,6 +8,7 @@ from common_objects import *
 from mainwindow import *
 
 
+
 def instruction_process(event: Event):
     if event.eventinfo == "Error":
         pass

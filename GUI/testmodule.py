@@ -70,7 +70,7 @@ class Ui_TestWindow(object):
 
         self.layoutWidget = QWidget(self.centralwidget)
         self.layoutWidget.setObjectName(u"layoutWidget")
-        self.layoutWidget.setGeometry(QRect(50, 20, 681, 311))
+        self.layoutWidget.setGeometry(QRect(50, 20, 681, 241))
         self.verticalLayout = QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -163,7 +163,7 @@ class Ui_TestWindow(object):
 
         self.log_output = QTextEdit(self.centralwidget)
         self.log_output.setObjectName(u"textEdit")
-        self.log_output.setGeometry(QRect(50, 340, 681, 101))
+        self.log_output.setGeometry(QRect(50, 270, 681, 181))
         TestWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(TestWindow)
         self.menubar.setObjectName(u"menubar")
@@ -280,7 +280,7 @@ class Ui_TestWindow(object):
 
 
 
-class MainWindow(QMainWindow):
+class TestTool(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_TestWindow()
@@ -289,7 +289,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = MainWindow()
+    window = TestTool()
     window.show()
     sys.exit(app.exec())
 
