@@ -12,8 +12,8 @@ class MainWindow(QMainWindow):
 
 def activate():
     app = QApplication(sys.argv)
-    screen = app.screens()[0]
-    dpi = screen.devicePixelRatio()
+    screen = app.screens()[1]
+    dpi = screen.devicePixelRatio()-0.35
     #dpi = 1.4
     print((dpi))
     window = MainWindow(dpi)

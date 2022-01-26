@@ -1,19 +1,19 @@
 class Elevator():
-    def __init__(self):  #创建一个电梯类，并且赋予电梯相应的属性，有当前状态，当前楼层，目标楼层，等待乘客的列表，电梯上乘客的列表
+    def __init__(self):  # 创建一个电梯类，并且赋予电梯相应的属性，有当前状态，当前楼层，目标楼层，等待乘客的列表，电梯上乘客的列表
         self.elevator_state = 'static'
         self.current_floor = 3
         self.destination_floor = 1
         self.waiting_list = []
         self.elevator_list = []
 
-    def start_elevator(self): #电梯开始运行，其中包含多种逻辑，全部拆分出来
+    def start_elevator(self): # 电梯开始运行，其中包含多种逻辑，全部拆分出来
         self.search_called()
         self.run_elevator()
 
     def run_elevator(self):
         while self.waiting_list or self.elevator_list:
-            self.search_called()   #每运行一层都检查一下命令队列，检查电梯的目的地
-            if (self.destination_floor == self.current_floor):  #如果电梯停下，再检查是否应该换向
+            self.search_called()   # 每运行一层都检查一下命令队列，检查电梯的目的地
+            if (self.destination_floor == self.current_floor):  # 如果电梯停下，再检查是否应该换向
                 self.open_door(self.destination_floor)
                 self.check_state()
                 continue
@@ -36,10 +36,10 @@ class Elevator():
                     self.elevator_state = 'up'
                 elif(self.destination_floor  < self.current_floor):
                     self.elevator_state = 'down'
-        if self.elevator_state == 'up':       #依旧是同时检查等待乘客列表和电梯乘客列表，判断最快到达楼层
-            self.destination_floor = 6        #最高楼层属性
+        if self.elevator_state == 'up':       # 依旧是同时检查等待乘客列表和电梯乘客列表，判断最快到达楼层
+            self.destination_floor = 6        # 最高楼层属性
             for passenger in self.waiting_list:
-                if (passenger.dest_floor-passenger.src_floor > 0):     #判断乘客按钮的方向
+                if (passenger.dest_floor-passenger.src_floor > 0):     # 判断乘客按钮的方向
                     if passenger.src_floor >= self.current_floor:
                         pre_destination_floor = passenger.src_floor
                         if self.destination_floor > pre_destination_floor:
@@ -50,9 +50,9 @@ class Elevator():
                     if self.destination_floor > pre_destination_floor:
                         self.destination_floor = pre_destination_floor
         if self.elevator_state == 'down':
-            self.destination_floor = 1      #最低楼层属性
+            self.destination_floor = 1      # 最低楼层属性
             for passenger in self.waiting_list:
-                if (passenger.dest_floor - passenger.src_floor < 0):  #判断乘客是否是上行
+                if (passenger.dest_floor - passenger.src_floor < 0):  # 判断乘客是否是上行
                     if passenger.src_floor <= self.current_floor:
                         pre_destination_floor = passenger.src_floor
                         if self.destination_floor < pre_destination_floor:
@@ -63,7 +63,7 @@ class Elevator():
                     if self.destination_floor < pre_destination_floor:
                         self.destination_floor = pre_destination_floor
 
-    def check_state(self):  #给电梯换方向的逻辑，通过同时检查乘客等待列表和电梯乘客列表来判断是否应该换向进行
+    def check_state(self):  # 给电梯换方向的逻辑，通过同时检查乘客等待列表和电梯乘客列表来判断是否应该换向进行
         if self.waiting_list and self.elevator_list:
             self.elevator_state = 'static'
         else:
@@ -88,20 +88,20 @@ class Elevator():
                 if max == self.current_floor:
                     self.elevator_state = 'down'
 
-    def passenger_into(self,destination_floor):   #判断是否有乘客进入，如果有，就在waiting列表中将其删除，在elevator列表中将其加入
+    def passenger_into(self,destination_floor):   # 判断是否有乘客进入，如果有，就在waiting列表中将其删除，在elevator列表中将其加入
         for passenger in self.waiting_list:
             if passenger.src_floor == destination_floor:
                 passenger.on_selected(elevator_one)
                 self.waiting_list.remove(passenger)
                 print("乘客" + passenger.uid + "进入电梯")
 
-    def passenger_leave(self,destination_floor):   #判断是否有乘客离开，如果有，就在elevator将其删除
+    def passenger_leave(self,destination_floor):   # 判断是否有乘客离开，如果有，就在elevator将其删除
         for passenger in self.elevator_list:
             if passenger.dest_floor == destination_floor:
                 self.elevator_list.remove(passenger)
                 print("乘客" + passenger.uid + "离开电梯")
 
-    def open_door(self,destination_floor):  #门开的同时进行乘客的进入与离开
+    def open_door(self,destination_floor):  # 门开的同时进行乘客的进入与离开
         print("门已开，请在10s内进入或者离开电梯")
         self.passenger_into(destination_floor)
         self.passenger_leave(destination_floor)

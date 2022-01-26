@@ -89,6 +89,7 @@ def self_test():
     handler = EventHandler(err)
     handler.activate_verbose()
     handler.activate_listener()
+
     # handler_instance = multiprocessing.Process(target=EventHandler, args=(err,))
     # handler_instance.start()  # 启动事件处理器
 

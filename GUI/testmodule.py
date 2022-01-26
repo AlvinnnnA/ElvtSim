@@ -264,6 +264,7 @@ class Ui_TestWindow(object):
                                        str(event.pid) +
                                        "\nError info is as belows\n" +
                                        event.eventinfo)
+
         elif event.eventtype == "Info":
             err_prompt.setText("提示")
             err_prompt.setIcon(err_prompt.Icon.Information)
