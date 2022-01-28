@@ -23,10 +23,10 @@ class EmittingStr(QObject):
 
 
 class Ui_TestWindow(object):
-    def setupUi(self, TestWindow):
+    def setupUi(self, TestWindow, rate):
         if not TestWindow.objectName():
             TestWindow.setObjectName(u"TestWindow")
-        TestWindow.resize(800, 600)
+        TestWindow.resize(int(800/rate), int(600/rate))
         self.actionExit = QAction(TestWindow)
         self.actionExit.setObjectName(u"actionExit")
 
@@ -224,7 +224,7 @@ class Ui_TestWindow(object):
         self.log_output.connect(sys.stderr, SIGNAL("textWritten(QString)"), self.output_written)
 
     @Slot()
-    def output_written(self, text):
+    def output_written(self, text: str):
         # self.textEdit.clear()
         cursor = self.log_output.textCursor()
         cursor.movePosition(QTextCursor.End)
@@ -282,15 +282,17 @@ class Ui_TestWindow(object):
 
 
 class TestTool(QMainWindow):
-    def __init__(self):
+    def __init__(self, rate):
         super().__init__()
         self.ui = Ui_TestWindow()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self, rate)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = TestTool()
+    screen = app.screens()[1]
+    dpi = screen.devicePixelRatio() - 0.35
+    window = TestTool(dpi)
     window.show()
     sys.exit(app.exec())
 

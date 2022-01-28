@@ -6,6 +6,7 @@ import time
 from threading import Thread, Timer
 from common_objects import *
 from mainwindow import *
+from typing import *
 
 
 
@@ -34,7 +35,6 @@ class EventHandler:
         if self.__verbose:
             print("handler listening for events\n")  # 运行汇报
         while self.__active:  # 控制位
-            time.sleep(0.3)  # 避免cpu占用过高
             while not self.queue.empty():  # 队列非空时不断处理
                 gotevent = self.queue.get(block=True)  # 取事件对象
                 if not isinstance(gotevent, Event):  # 防止非事件对象进入队列出错
@@ -43,6 +43,8 @@ class EventHandler:
                                          multiprocessing.current_process().pid))
                     continue
                 self.__event_process(gotevent)
+            if self.queue.empty():
+                time.sleep(0.3) # 避免cpu占用过高
 
     def __event_process(self, gotevent: Event):
         if self.__verbose:
