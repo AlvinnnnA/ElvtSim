@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QApplication, QGroupBox, QHBoxLayout, QHeaderView
     QMainWindow, QMenu, QMenuBar, QPushButton,
     QSizePolicy, QTableView, QToolButton, QWidget)
 import sys
-from GUI.sim_conf import *
+from GUI.sim_conf import ConfigWizard
 
 
 
@@ -180,6 +180,5 @@ class Ui_MainWindow(object):
     def conf_wizard(self):
         wizard = ConfigWizard(self.rate)
         wizard.exec_()
-        #return app.exec_()
 
 

@@ -1,15 +1,22 @@
 """
 这里是图形化测试工具！！
 """
-import traceback
 from PySide6.QtCore import *
 from PySide6.QtGui import (QAction, QTextCursor)
 from PySide6.QtWidgets import *
+
 from common_objects import *
 from wheels import *
+from GUI.sim_conf import ConfigWizard
+
 import multiprocessing
 import eventhandler
 import sys
+import traceback
+import warnings
+
+
+warnings.filterwarnings("ignore",category=DeprecationWarning)
 
 
 class EmittingStr(QObject):
@@ -26,7 +33,8 @@ class Ui_TestWindow(object):
     def setupUi(self, TestWindow, rate):
         if not TestWindow.objectName():
             TestWindow.setObjectName(u"TestWindow")
-        TestWindow.resize(int(800/rate), int(600/rate))
+        self.rate = rate
+        TestWindow.resize(int(800/self.rate), int(600/self.rate))
         self.actionExit = QAction(TestWindow)
         self.actionExit.setObjectName(u"actionExit")
 
@@ -238,7 +246,8 @@ class Ui_TestWindow(object):
 
     @Slot()
     def configgen_self_test(self):
-        pass
+        wizard = ConfigWizard(self.rate)
+        wizard.exec_()
 
     @Slot()
     def error_prompt_test(self):
