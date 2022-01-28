@@ -20,11 +20,13 @@ from PySide6.QtWidgets import (QApplication, QGroupBox, QHBoxLayout, QHeaderView
     QMainWindow, QMenu, QMenuBar, QPushButton,
     QSizePolicy, QTableView, QToolButton, QWidget)
 import sys
+from GUI.sim_conf import *
 
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, rate):
+    def setupUi(self, MainWindow, rate, app):
+        self.motherapp  = app
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(int(800/rate), int(600/rate))
@@ -150,6 +152,7 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
         self.sim_conf_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u4eff\u771f\u914d\u7f6e\u6570\u636e", None))
         self.sim_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.sim_add.clicked.connect(self.conf_wizard)
         self.sim_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.sim_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.user_info_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u7528\u6237\u4fe1\u606f", None))
@@ -172,4 +175,11 @@ class Ui_MainWindow(object):
     @Slot()
     def process_handle(self):
         pass
+
+    @Slot()
+    def conf_wizard(self):
+        wizard = ConfigWizard()
+        wizard.exec_()
+        #return app.exec_()
+
 
