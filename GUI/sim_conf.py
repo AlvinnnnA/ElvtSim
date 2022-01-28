@@ -20,11 +20,11 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
     QVBoxLayout, QWidget, QWizard, QWizardPage)
 
 class Ui_NewSimConf(object):
-    def setupUi(self, NewSimConf):
+    def setupUi(self, NewSimConf, rate):
         if not NewSimConf.objectName():
             NewSimConf.setObjectName(u"NewSimConf")
         NewSimConf.setWindowModality(Qt.ApplicationModal)
-        NewSimConf.resize(423, 326)
+        NewSimConf.resize(423/rate, 326/rate)
         NewSimConf.setLocale(QLocale(QLocale.Chinese, QLocale.China))
         NewSimConf.setSizeGripEnabled(False)
         NewSimConf.setModal(True)
@@ -127,8 +127,8 @@ class Ui_NewSimConf(object):
     # retranslateUi
 
 class ConfigWizard(QWizard):
-    def __init__(self):
+    def __init__(self, rate):
         super(ConfigWizard, self).__init__()
         self.ui = Ui_NewSimConf()
-        self.ui.setupUi(self)
+        self.ui.setupUi(self, rate)
         #self.show()

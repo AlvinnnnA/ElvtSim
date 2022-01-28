@@ -25,11 +25,11 @@ from GUI.sim_conf import *
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, rate, app):
-        self.motherapp  = app
+    def setupUi(self, MainWindow, rate):
+        self.rate = rate
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(int(800/rate), int(600/rate))
+        MainWindow.resize(int(800/self.rate), int(600/self.rate))
         #sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         #sizePolicy.setHorizontalStretch(0)
         #sizePolicy.setVerticalStretch(0)
@@ -178,7 +178,7 @@ class Ui_MainWindow(object):
 
     @Slot()
     def conf_wizard(self):
-        wizard = ConfigWizard()
+        wizard = ConfigWizard(self.rate)
         wizard.exec_()
         #return app.exec_()
 
