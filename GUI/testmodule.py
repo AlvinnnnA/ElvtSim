@@ -253,7 +253,7 @@ class Ui_TestWindow(object):
     def error_prompt_test(self):
         try:
             eventhandler.suicide()
-        except AttributeError as error:
+        except AttributeError:
             error_event = Event("Error", traceback.format_exc(), multiprocessing.current_process().pid)
             self.event_prompt(error_event)
 
@@ -262,7 +262,7 @@ class Ui_TestWindow(object):
         info = Event("Info", "This is a self test message!", multiprocessing.current_process().pid)
         self.event_prompt(info)
 
-    @classmethod
+    #@classmethod
     def event_prompt(self, event: Event):
         err_prompt = ElvtTeamEventPrompt()
 
