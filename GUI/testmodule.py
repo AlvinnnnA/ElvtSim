@@ -204,7 +204,7 @@ class Ui_TestWindow(object):
         self.checkBox.setText(QCoreApplication.translate("TestWindow", u"Config checker A", None))
         self.checkBox_2.setText(QCoreApplication.translate("TestWindow", u"Config checker B", None))
 
-        self.label.setText(QCoreApplication.translate("TestWindow", u"Core mechanism", None))
+        self.label.setText(QCoreApplication.translate("TestWindow", u"Supporting modules", None))
         self.pushButton_27.setText(QCoreApplication.translate("TestWindow", u"Event handler", None))
         self.pushButton_27.clicked.connect(self.eventhandler_self_test)
         self.pushButton_28.setText(QCoreApplication.translate("TestWindow", u"Config generator", None))
@@ -219,9 +219,9 @@ class Ui_TestWindow(object):
         self.pushButton_34.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
 
         self.label_3.setText(QCoreApplication.translate("TestWindow", u"GUI", None))
-        self.pushButton_11.setText(QCoreApplication.translate("TestWindow", u"Error Prompt", None))
+        self.pushButton_11.setText(QCoreApplication.translate("TestWindow", u"Error prompt", None))
         self.pushButton_11.clicked.connect(self.error_prompt_test)
-        self.pushButton_12.setText(QCoreApplication.translate("TestWindow", u"Info Dialog", None))
+        self.pushButton_12.setText(QCoreApplication.translate("TestWindow", u"Info dialog", None))
         self.pushButton_12.clicked.connect(self.info_diag_test)
         self.pushButton_13.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
         self.pushButton_14.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
@@ -262,6 +262,7 @@ class Ui_TestWindow(object):
         info = Event("Info", "This is a self test message!", multiprocessing.current_process().pid)
         self.event_prompt(info)
 
+    @classmethod
     def event_prompt(self, event: Event):
         err_prompt = ElvtTeamEventPrompt()
 

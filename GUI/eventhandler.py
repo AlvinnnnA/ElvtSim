@@ -18,7 +18,7 @@ def instruction_process(event: Event):
 HANDLER_DICT = {"Error": Ui_MainWindow.error_handle,
                 "Info": Ui_MainWindow.event_handle,
                 "Progress": Ui_MainWindow.process_handle,
-                "Instruction": instruction_process
+                "Instruction": self.instruction_process
                 }
 
 
@@ -28,6 +28,7 @@ class EventHandler:
         self.__verbose = False
         self.queue = queue  # 事件队列
         self.__listener = Thread(target=self.__listen)
+        self.register_dict = {}
         # 一个小坑：target=func()和target=func不一样，前者直接运行，后者不调用start()不运行
         # self.activate_listener()  # 启动侦听器线程
 
@@ -44,7 +45,14 @@ class EventHandler:
                     continue
                 self.__event_process(gotevent)
             if self.queue.empty():
-                time.sleep(0.3) # 避免cpu占用过高
+                time.sleep(0.3)  # 避免cpu占用过高
+
+    def register_process(self, register_event):
+        self.register_dict[register_event.pid] = register_event.info_extra
+
+    def instruction_process(self, event):
+        if event.eventinfo == "Register":
+            self.register_process(event)
 
     def __event_process(self, gotevent: Event):
         if self.__verbose:
@@ -54,7 +62,8 @@ class EventHandler:
         if gotevent.eventinfo == "Stop handler":
             self.kill_listener()
         else:
-            HANDLER_DICT[gotevent.eventtype]()
+            HANDLER_DICT[gotevent.eventtype](gotevent)
+
 
     def activate_listener(self):  # 启动侦听器
         self.__active = True
