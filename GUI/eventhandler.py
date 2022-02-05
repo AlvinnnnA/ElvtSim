@@ -5,10 +5,21 @@ import multiprocessing
 import time
 import traceback
 from threading import Thread, Timer
+from PySide6.QtCore import QObject, Signal, QEventLoop, QTimer
 from common_objects import *
 from GUI.mainwindow import *
-#from GUI.testmodule import *
+from GUI.testmodule import Ui_TestWindow
 
+
+class EventSignal(QObject):
+    event = Signal(dict)
+    def poll(self,event):
+        event_dict = event.dictize()
+        self.event.emit(event_dict)
+        loop = QEventLoop()
+        QTimer.singleShot(100, loop.quit)
+        loop.exec()
+        #self.event.connect()
 
 
 def instruction_process(event: Event):
@@ -20,14 +31,18 @@ class EventHandler:
     def __init__(self, queue: multiprocessing.Queue):
         self.__active = False  # 控制位，用于控制侦听器是否活跃
         self.__verbose = False
-        self.queue = queue  # 事件队列
+        if isinstance(queue, multiprocessing.queues.Queue):
+            self.queue = queue  # 事件队列
+        else:
+            raise TypeError("Bad queue", str(type(queue)), queue)
         self.__listener = Thread(target=self.__listen)
         self.register_dict = {}
-        self.HANDLER_DICT = {"Error": self.error_process,
+        self.HANDLER_DICT = {"Error": None,
                         "Info": Ui_MainWindow.event_handle,
                         "Progress": Ui_MainWindow.process_handle,
                         "Instruction": self.instruction_process
                         }
+        self.front_handler = EventSignal()
         # 一个小坑：target=func()和target=func不一样，前者直接运行，后者不调用start()不运行
         # self.activate_listener()  # 启动侦听器线程
 
@@ -63,8 +78,11 @@ class EventHandler:
             gotevent.print_data()
         if gotevent.eventinfo == "Stop handler":
             self.kill_listener()
+        if isinstance(self.front_handler, EventSignal):
+            self.front_handler.poll(gotevent)
         else:
-            self.HANDLER_DICT[gotevent.eventtype](gotevent)
+            print("None activated")
+            #self.HANDLER_DICT[gotevent.eventtype](gotevent)
 
 
     def activate_listener(self):  # 启动侦听器
@@ -90,9 +108,13 @@ def kill_handler(queue: multiprocessing.Queue):
     queue.put(stop_event)
 
 
-def suicide():
+def suicide(err: multiprocessing.Queue):
     a = 1
-    a.append("a")
+    try:
+        a.append("a")
+    except AttributeError:
+        error_event = Event("Error", traceback.format_exc(), multiprocessing.current_process().pid)
+        err.put(error_event)
 
 
 def self_test():
@@ -103,11 +125,7 @@ def self_test():
     handler.activate_verbose()
     handler.activate_listener()
 
-    try:
-        suicide()
-    except AttributeError:
-        error_event = Event("Error", traceback.format_exc(), multiprocessing.current_process().pid)
-        err.put(error_event)
+    suicide(err)
 
     # handler_instance = multiprocessing.Process(target=EventHandler, args=(err,))
     # handler_instance.start()  # 启动事件处理器

@@ -22,3 +22,17 @@ class Event:  # 事件类型定义
         if not self.info_extra is None:
             print("Extra info is", self.info_extra)
 
+    def dictize(self):
+        event_dict = {}
+        event_dict["eventinfo"] = self.eventinfo
+        event_dict["eventtype"] = self.eventtype
+        event_dict["pid"] = self.pid
+        event_dict["time"] = self.time
+        event_dict["info_extra"] = self.info_extra
+        return event_dict
+
+
+def make_event_instance(event_dict: dict):
+    event = Event(event_dict["eventtype"], event_dict["eventinfo"], event_dict["pid"], event_dict["info_extra"])
+    return event
+
