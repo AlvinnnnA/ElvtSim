@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
-## Form generated from reading UI file 'sim_conf.ui'
-##
-## Created by: Qt User Interface Compiler version 6.2.1
-##
-## WARNING! All changes made in this file will be lost when recompiling UI file!
-################################################################################
+"""
+配置文件生成向导
+"""
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
@@ -50,7 +44,8 @@ class Ui_NewSimConf(object):
 
         self.basic_info.addWidget(self.label_elvt_cnt)
 
-        self.elvt_cnt = QSpinBox(self.layoutWidget)
+        self.elvt_cnt = QSpinBox(self.layoutWidget)  # 电梯数
+        self.elvt_cnt.setMinimum(1)
         self.elvt_cnt.setObjectName(u"elvt_cnt")
 
         self.basic_info.addWidget(self.elvt_cnt)
@@ -64,7 +59,8 @@ class Ui_NewSimConf(object):
 
         self.basic_info.addWidget(self.label_floor_cnt)
 
-        self.floor_cnt = QSpinBox(self.layoutWidget)
+        self.floor_cnt = QSpinBox(self.layoutWidget)  # 楼层数
+        self.floor_cnt.setMinimum(2)
         self.floor_cnt.setObjectName(u"floor_cnt")
 
         self.basic_info.addWidget(self.floor_cnt)
@@ -78,7 +74,7 @@ class Ui_NewSimConf(object):
 
         self.basic_info.addWidget(self.label_under_floors)
 
-        self.under_floors = QSpinBox(self.layoutWidget)
+        self.under_floors = QSpinBox(self.layoutWidget)  # 地下楼层数
         self.under_floors.setObjectName(u"under_floors")
 
         self.basic_info.addWidget(self.under_floors)
@@ -124,18 +120,23 @@ class Ui_NewSimConf(object):
         self.start_box_2.setTitle(QCoreApplication.translate("NewSimConf", u"\u7535\u68af\u4fe1\u606f", None))
         self.label.setText(QCoreApplication.translate("NewSimConf", u"\u8bf7\u5148\u9009\u62e9\u8981\u7f16\u8f91\u7684\u7535\u68af", None))
         self.elvt_box.setTitle(QCoreApplication.translate("NewSimConf", u"\u7535\u68af\u4fe1\u606f", None))
+
+        self.current_working_dict = {}
     # retranslateUi
 
     @Slot()
-    def done_basic(self):
+    def done_basic(self):  # 第一页结束，保存配置信息
+        self.current_working_dict["elvt_cnt"] = self.elvt_cnt.value()
+        self.current_working_dict["floor_cnt"] = self.floor_cnt.value()
+        self.under_floors
         pass
 
     @Slot()
-    def change_conf_elvt(self):
+    def change_conf_elvt(self):  # 更改正在配置的电梯对象
         pass
 
     @Slot()
-    def done_steptwo(self):
+    def done_steptwo(self):  #完成第二页，保存配置信息
         pass
 
 

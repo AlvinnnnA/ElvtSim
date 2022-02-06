@@ -193,8 +193,6 @@ class Ui_TestWindow(object):
         self.prompter = ElvtTeamEventPrompt()
     # setupUi
 
-
-
     def retranslateUi(self, TestWindow):
         TestWindow.setWindowTitle(QCoreApplication.translate("TestWindow", u"ElvtTeam test tool", None))
         self.actionExit.setText(QCoreApplication.translate("TestWindow", u"Exit", None))
@@ -273,6 +271,7 @@ class Ui_TestWindow(object):
         queue = multiprocessing.Queue()
         handler = eventhandler.EventHandler(queue)
         handler.activate_verbose()
+        handler.use_front_handler()
         signal = handler.front_handler
         signal.event.connect(self.prompter.event_prompt)
         handler.activate_listener()
