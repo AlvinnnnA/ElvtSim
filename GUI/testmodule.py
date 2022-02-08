@@ -14,6 +14,7 @@ import eventhandler
 import sys
 import traceback
 import warnings
+from threading import Thread
 
 
 warnings.filterwarnings("ignore",category=DeprecationWarning)
@@ -189,6 +190,7 @@ class Ui_TestWindow(object):
         self.retranslateUi(TestWindow)
 
         QMetaObject.connectSlotsByName(TestWindow)
+        self.prompter = ElvtTeamEventPrompt()
     # setupUi
 
     def retranslateUi(self, TestWindow):
@@ -223,7 +225,8 @@ class Ui_TestWindow(object):
         self.pushButton_11.clicked.connect(self.error_prompt_test)
         self.pushButton_12.setText(QCoreApplication.translate("TestWindow", u"Info dialog", None))
         self.pushButton_12.clicked.connect(self.info_diag_test)
-        self.pushButton_13.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
+        self.pushButton_13.setText(QCoreApplication.translate("TestWindow", u"Event error", None))
+        self.pushButton_13.clicked.connect(self.handler_error_prompt)
         self.pushButton_14.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
         self.menuTest_tool.setTitle(QCoreApplication.translate("TestWindow", u"Test tool", None))
         sys.stdout = EmittingStr()
@@ -252,42 +255,30 @@ class Ui_TestWindow(object):
     @Slot()
     def error_prompt_test(self):
         try:
-            eventhandler.suicide()
+            a = 1
+            a.append("a")
         except AttributeError:
             error_event = Event("Error", traceback.format_exc(), multiprocessing.current_process().pid)
-            self.event_prompt(error_event)
+            self.prompter.event_prompt(error_event)
 
     @Slot()
     def info_diag_test(self):
         info = Event("Info", "This is a self test message!", multiprocessing.current_process().pid)
-        self.event_prompt(info)
+        self.prompter.event_prompt(info)
 
-    #@classmethod
-    def event_prompt(self, event: Event):
-        err_prompt = ElvtTeamEventPrompt()
+    @Slot()
+    def handler_error_prompt(self):
+        queue = multiprocessing.Queue()
+        handler = eventhandler.EventHandler(queue)
+        handler.activate_verbose()
+        handler.use_front_handler()
+        signal = handler.front_handler
+        signal.event.connect(self.prompter.event_prompt)
+        handler.activate_listener()
 
-        if event.eventtype == "Error":
-            err_prompt.setText("发生了错误！")
-            err_prompt.setIcon(err_prompt.Icon.Critical)
-            err_prompt.setWindowTitle("错误")
-            err_prompt.setDetailedText("Error occurred at process " +
-                                       str(event.pid) +
-                                       "\nError info is as belows\n" +
-                                       event.eventinfo)
+        eventhandler.suicide(queue)
 
-        elif event.eventtype == "Info":
-            err_prompt.setText("提示")
-            err_prompt.setIcon(err_prompt.Icon.Information)
-            err_prompt.setWindowTitle("信息")
-            err_prompt.setDetailedText("Info raised at process " +
-                                       str(event.pid) +
-                                       "\nInfo reads as belows\n" +
-                                       event.eventinfo)
-
-        err_prompt.setStandardButtons(QMessageBox.Ok)
-        err_prompt.exec()
-
-
+        eventhandler.kill_handler(queue)
 
 
 
