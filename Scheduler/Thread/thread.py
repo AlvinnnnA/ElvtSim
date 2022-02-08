@@ -1,7 +1,7 @@
-import convert_time
+import random
+from Scheduler.Thread import convert_time
 import multiprocessing
 from common_objects import Event
-from GUI.eventhandler import EventHandler
 
 
 class Elevator:
@@ -23,7 +23,8 @@ class Elevator:
         self.destination_floor = 1  # 电梯的目标楼层
         self.MIN_FLOOR = 1  # 电梯的最低停靠楼层
         self.MAX_FLOOR = 6  # 电梯的最高停靠楼层
-        self.elevator_clock = convert_time.time_to_num("6:00:00")  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
+        self.MAX_WEIGHT = 15  # 电梯的最高搭乘人数为15人
+        self.elevator_clock = convert_time.time_to_num("06:00:00")  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
         self.elevator_timestamp = []  # 乘客呼叫的时间戳，将乘客分配好之后，将乘客呼叫电梯的时间戳放入这里
         self.acceleration_switch = True  # 电梯进行时间加速的按钮，默认是打开状态
         self.waiting_list = []  # 此时正在等待的乘客的队列
@@ -58,8 +59,8 @@ class Elevator:
     def search_called(self):    # 电梯调用函数寻找目的地
         if self.elevator_state == 'static':  # 电梯起始状态
             min_floor = self.MAX_FLOOR    # 这里是如果电梯在同一时间接到乘客的呼叫，优先下行
-            for passenger in self.waiting_list:  # 遍历等待队列
-                destination = passenger.src_floor
+            for passenger in self.elevator_list:  # 先遍历电梯队列，即使电梯是静止的，电梯队列也可能有人
+                destination = passenger.dest_floor
                 if min_floor > destination:
                     min_floor = destination
                 self.destination_floor = min_floor
@@ -67,6 +68,16 @@ class Elevator:
                     self.elevator_state = 'up'
                 elif self.destination_floor < self.current_floor:
                     self.elevator_state = 'down'
+            if not self.elevator_list:
+                for passenger in self.waiting_list:  # 如果电梯队列是空的，则遍历等待队列
+                    destination = passenger.src_floor
+                    if min_floor > destination:
+                        min_floor = destination
+                    self.destination_floor = min_floor
+                    if self.destination_floor > self.current_floor:
+                        self.elevator_state = 'up'
+                    elif self.destination_floor < self.current_floor:
+                        self.elevator_state = 'down'
         if self.elevator_state == 'up':       # 同时检查等待乘客列表和电梯乘客列表，判断最快到达楼层
             self.destination_floor = self.check_max()  # 检查目前能到的最高层，主要是当做一个比较的对象
             for passenger in self.waiting_list:
@@ -134,7 +145,7 @@ class Elevator:
         if not self.acceleration_switch:
             for passenger in self.total_list:
                 if passenger.call_time == self.elevator_clock:
-                    passenger.on_called(elevator_one)
+                    passenger.on_called(passenger.into_elevator)
 
     def check_min(self):  # 遍历电梯队列与等待队列，计算最低到达楼层
         max_floor = self.MAX_FLOOR
@@ -163,17 +174,17 @@ class Elevator:
     def passenger_into(self, destination_floor):  # 判断是否有乘客进入，如果有，就在waiting列表中将其删除，在elevator列表中将其加入
         for passenger in self.waiting_list[:]:  # 遍历在复制列表中，删除在原先列表中，因为每删一个对象，列表会向前移动一下
             if passenger.src_floor == destination_floor:
-                passenger.on_selected(elevator_one)
+                passenger.on_selected(passenger.into_elevator)
                 self.waiting_list.remove(passenger)
                 self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                print("乘客" + passenger.uid + "于" + convert_time.num_to_time(self.elevator_clock) + "进入电梯")
+                print("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
 
     def passenger_leave(self, destination_floor):   # 判断是否有乘客离开，如果有，就在elevator将其删除
         for passenger in self.elevator_list[:]:
             if passenger.dest_floor == destination_floor:
                 self.elevator_list.remove(passenger)
                 self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
-                print("乘客" + passenger.uid + "于" + convert_time.num_to_time(self.elevator_clock) + "离开电梯")
+                print("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time(self.elevator_clock)) + "离开电梯")
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
         print("门已开，请在10s内进入或者离开电梯")
@@ -191,8 +202,7 @@ class Passenger:
         self.dest_floor = dest_floor
         self.state = 'Waiting'
         self.call_time = convert_time.time_to_num(call_time)  # 乘客储存是时间戳
-        elevator_one.elevator_timestamp.append(self.call_time)
-        elevator_one.total_list.append(self)
+        self.into_elevator = None
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)
@@ -200,12 +210,20 @@ class Passenger:
     def on_selected(self, elevator_num):
         elevator_num.elevator_list.append(self)
 
+    @classmethod  # 随机生成乘客的函数
+    def random_passenger(cls, number: int, highest: int):
+        born_passenger_list = []
+        for i in range(number):
+            start = random.randint(1, highest)
+            end = random.randint(1, highest)
+            while start == end:
+                end = random.randint(1, highest)
+            born_passenger_list.append(Passenger(str(i), start,
+                                                 end, convert_time.num_to_time(random.randint(1640966400, 1641052799))))
+        return born_passenger_list
+
 
 if __name__ == '__main__':
-    elevator_one = Elevator()
-    syn = Passenger('1', 1, 4, "8:00:00")
-    lzj = Passenger('2', 6, 5, "8:00:00")
-    wgt = Passenger('3', 2, 1, "8:00:07")
-    ash = Passenger('4', 3, 1, "8:00:07")
-    gxf = Passenger('5', 3, 5, "18:05:36")
+    elevator_one = Elevator('elevator_one')
+    passenger_list = Passenger.random_passenger(1000, 6)
     elevator_one.start_elevator()
