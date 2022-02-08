@@ -72,7 +72,7 @@ class EventHandler:
         if event.eventinfo == "Register":
             self.register_process(event)
 
-    def event_process(self, gotevent: Event):  #总事件处理器
+    def event_process(self, gotevent: Event):  # 总事件处理器
         if self.__verbose:  # 啰嗦模式
             print("Handler Process", multiprocessing.current_process().pid,
                   "Got Data", gotevent)
