@@ -5,7 +5,7 @@ from common_objects import Event
 
 
 class Elevator:
-    def __init__(self, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
+    def __init__(self, mix_floor, max_floor, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
         self.__event_enabled = True  # 是否启用事件处理器报送
         self.__verbose = False  # 是否启用啰嗦模式
         if not type(event_queue) == "multiprocessing.queues.Queue":  # 防止乱传参
@@ -21,8 +21,8 @@ class Elevator:
         self.elevator_state = 'static'  # 电梯的当前状态，默认是静止状态
         self.current_floor = 4  # 电梯当前所在楼层
         self.destination_floor = 1  # 电梯的目标楼层
-        self.MIN_FLOOR = 1  # 电梯的最低停靠楼层
-        self.MAX_FLOOR = 6  # 电梯的最高停靠楼层
+        self.MIN_FLOOR = mix_floor  # 电梯的最低停靠楼层
+        self.MAX_FLOOR = max_floor  # 电梯的最高停靠楼层
         self.MAX_WEIGHT = 15  # 电梯的最高搭乘人数为15人
         self.elevator_clock = convert_time.time_to_num("06:00:00")  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
         self.elevator_timestamp = []  # 乘客呼叫的时间戳，将乘客分配好之后，将乘客呼叫电梯的时间戳放入这里
@@ -224,6 +224,6 @@ class Passenger:
 
 
 if __name__ == '__main__':
-    elevator_one = Elevator('elevator_one')
+    elevator_one = Elevator(1, 6)
     passenger_list = Passenger.random_passenger(1000, 6)
     elevator_one.start_elevator()
