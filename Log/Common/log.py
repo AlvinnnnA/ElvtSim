@@ -71,7 +71,7 @@ class logger:
 if __name__ == '__main__':
 
     # 先实例化再进行调用日志模块
-    logger = logging.Logger("wd_is_bottom", 2)
-    for i in range(240):
+    logger = logging.Logger("wd_is_bottom")
+    for i in range(1):
         logger.info("syn_is_doing_handjob")
         logger.warning("114514")
