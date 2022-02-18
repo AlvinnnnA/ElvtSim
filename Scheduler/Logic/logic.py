@@ -5,7 +5,7 @@ def choice_allocation(elevator_number, choice_dictionary):  # 可选择性的多
     if elevator_number == 2:
         elevator_one_list = []
         elevator_two_list = []
-        for passenger in total_passenger_list:  # 遍历在总乘客列表中的每一个乘客
+        for passenger in total_passenger_list:  # 遍历在总乘客列表中的每一个乘客，根据电梯的特点进行分配
             if passenger.src_floor == 1:
                 for floor in choice_dictionary['elevator_one']:
                     if passenger.dest_floor == floor:
@@ -38,8 +38,8 @@ single_even_switch = True
 elevator_one = Elevator(1, 6)
 elevator_two = Elevator(1, 6)
 total_passenger_list = []
-total_passenger_list.append(Passenger(1, 3, 6, "08:00:00"))
-total_passenger_list.append(Passenger(2, 6, 2, "09:00:00"))
+for i in range(20):
+    total_passenger_list.append(Passenger(1, 3, 6, "08:00:00"))
 elevator_one_choice = [3]
 elevator_two_choice = [2, 5, 4, 6]
 elevator_dictionary = {'elevator_one': elevator_one_choice, 'elevator_two': elevator_two_choice}
