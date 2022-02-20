@@ -25,7 +25,7 @@ class logger:
     # 初始化logger
     log = logging.getLogger()
     # 日志格式，可以根据需要设置
-    fmt = logging.Formatter('[%(asctime)s][%(filename)s][line:%(lineno)d][%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+    fmt = logging.Formatter('%(asctime)s|%(filename)s|line:%(lineno)d|%(levelname)8s| %(message)s', '%Y-%m-%d %H:%M:%S')
 
     # 日志输出到文件，这里用到了上面获取的日志名称，大小，保存个数
     handle1 = logging.handlers.RotatingFileHandler(logname, maxBytes=logsize, backupCount=lognum)
@@ -69,7 +69,7 @@ class logger:
 if __name__ == '__main__':
 
     # 先实例化再进行调用日志模块
-    logger = logging.getLogger('applog')
+    logger = logging.getLogger()
     for i in range(1):
         logger.info("syn_is_doing_handjob")
         logger.warning("There's whores in the house")
