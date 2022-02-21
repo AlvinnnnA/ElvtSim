@@ -14,12 +14,16 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
                                QVBoxLayout, QWidget, QWizard, QWizardPage, QHBoxLayout, QListWidget, QListWidgetItem,
                                QGridLayout, QCheckBox, QPushButton, QLineEdit, QButtonGroup)
 from GUI.configgen import ConfigData
+from common_objects import Event
 import os
+
+from GUI.wheels import ElvtTeamEventPrompt
 
 DEFAULT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Ui_NewSimConf(object):
+    __verbose = True
     def setupUi(self, NewSimConf, rate):
         if not NewSimConf.objectName():
             NewSimConf.setObjectName(u"NewSimConf")
@@ -91,40 +95,54 @@ class Ui_NewSimConf(object):
         self.start_box_2 = QGroupBox(self.wizardPage2)
         self.start_box_2.setObjectName(u"start_box_2")
         self.start_box_2.setGeometry(QRect(0, 0, 401, 211))
+
         self.progressBar = QProgressBar(self.start_box_2)
         self.progressBar.setObjectName(u"progressBar")
         self.progressBar.setGeometry(QRect(10, 180, 381, 20))
         self.progressBar.setValue(24)
+
         self.label = QLabel(self.start_box_2)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(10, 20, 51, 16))
+
         self.elvt_box = QGroupBox(self.start_box_2)
         self.elvt_box.setObjectName(u"elvt_box")
         self.elvt_box.setGeometry(QRect(70, 20, 321, 151))
+
         self.advanced_setting = QPushButton(self.elvt_box)
         self.advanced_setting.setObjectName(u"advanced_setting")
         self.advanced_setting.setGeometry(QRect(240, 30, 61, 20))
+
         self.elvt_capacity = QLineEdit(self.elvt_box)
         self.elvt_capacity.setObjectName(u"elvt_capacity")
+        self.elvt_capacity.setMaxLength(2)
         self.elvt_capacity.setGeometry(QRect(70, 120, 31, 21))
+
         self.elvt_priority = QLineEdit(self.elvt_box)
         self.elvt_priority.setObjectName(u"elvt_priority")
+        self.elvt_priority.setMaxLength(1)
         self.elvt_priority.setGeometry(QRect(70, 90, 31, 21))
+
         self.label_2 = QLabel(self.elvt_box)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setGeometry(QRect(10, 30, 49, 16))
+
         self.label_5 = QLabel(self.elvt_box)
         self.label_5.setObjectName(u"label_5")
         self.label_5.setGeometry(QRect(10, 90, 49, 16))
+
         self.label_6 = QLabel(self.elvt_box)
         self.label_6.setObjectName(u"label_6")
         self.label_6.setGeometry(QRect(10, 120, 49, 16))
+
         self.layoutWidget1 = QWidget(self.elvt_box)
         self.layoutWidget1.setObjectName(u"layoutWidget1")
         self.layoutWidget1.setGeometry(QRect(70, 30, 158, 48))
+
         self.floors_cfg_group = QGridLayout(self.layoutWidget1)
         self.floors_cfg_group.setObjectName(u"floors_cfg_group")
         self.floors_cfg_group.setContentsMargins(0, 0, 0, 0)
+
         self.odd_floors = QCheckBox(self.layoutWidget1)
         self.odd_floors.setObjectName(u"odd_floors")
 
@@ -132,6 +150,7 @@ class Ui_NewSimConf(object):
 
         self.even_floors = QCheckBox(self.layoutWidget1)
         self.even_floors.setObjectName(u"even_floors")
+
         self.odd_even_group = QButtonGroup()
         self.odd_even_group.addButton(self.odd_floors)
         self.odd_even_group.addButton(self.even_floors)
@@ -258,6 +277,14 @@ class Ui_NewSimConf(object):
                                                         None))
         self.cfg_path_final.setText(QCoreApplication.translate("NewSimConf", u"Not Specified", None))
 
+        self.prompter = ElvtTeamEventPrompt()
+        self.clicked_item = 1
+
+        self.progressBar.setValue(0)
+
+        #self.elvt_priority.editingFinished.connect(self.check_input)
+        #self.elvt_capacity.editingFinished.connect(self.check_input)
+
         self.listWidget.itemClicked.connect(self.change_conf_elvt)
 
         self.current_working_dict = {}
@@ -271,6 +298,22 @@ class Ui_NewSimConf(object):
             pass
         elif id == 3:
             self.done_steptwo()
+
+    @Slot()
+    def check_input(self):
+        box_input = [self.elvt_priority.text(), self.elvt_capacity.text()]
+        self.elvt_capacity.clear()
+        self.elvt_priority.clear()
+        for text in box_input:
+            if text == "":
+                return False
+            elif not text.isdigit():
+                self.prompter.event_prompt(Event("Error", "Input only allows integer!\nError input is", text))
+                return False
+        if self.__verbose:
+            print("list returned")
+        return box_input
+        pass
 
     @Slot()
     def done_basic(self):  # 第一页结束，保存配置信息
@@ -290,11 +333,12 @@ class Ui_NewSimConf(object):
         #self.current_working_dict["under_floors"] = self.under_floors.value()
         self.listWidget.clear()
         self.listWidget.addItems(items(self.current_working_data.dict_data["elvt_cnt"]))
+        self.listWidget.item(0).setSelected(True)
 
     def refill_configs(self, cfg_dict: dict):
         if cfg_dict["capacity"] is not None and cfg_dict["accepted_priority"] is not None:
-            self.elvt_capacity.setText(cfg_dict["capacity"])
-            self.elvt_priority.setText(cfg_dict["accepted_priority"])
+            self.elvt_capacity.setText(str(cfg_dict["capacity"]))
+            self.elvt_priority.setText(str(cfg_dict["accepted_priority"]))
         pass
 
     def parse_floor_setting(self, floor_tuple: tuple):
@@ -343,15 +387,29 @@ class Ui_NewSimConf(object):
         else:
             return tuple(available_floors)
 
-
         pass
+
+    def clear_configs(self):
+        self.odd_floors.setCheckState(Qt.CheckState.Unchecked)
+        self.even_floors.setCheckState(Qt.CheckState.Unchecked)
+        self.high_floors.setCheckState(Qt.CheckState.Unchecked)
+        self.low_floors.setCheckState(Qt.CheckState.Unchecked)
 
     @Slot()
     def change_conf_elvt(self, item: QListWidgetItem):  # 更改正在配置的电梯对象
-        def get_floor_setting():
-            pass
-        self.refill_configs(self.current_working_data.get_elevator_config(int(item.text())))
-        self.current_working_data.set_elevator_config(int(item.text()), get_floor_setting())
+        #self.clicked_item = item
+        params = self.check_input()
+        if isinstance(params, list):
+            self.current_working_data.set_elevator_config(self.clicked_item,
+                                                          self.get_floor_setting(),
+                                                          int(params[0]),
+                                                          None,
+                                                          int(params[1]))
+
+        self.clear_configs()
+        self.clicked_item = int(item.text())
+        self.refill_configs(self.current_working_data.get_elevator_config(self.clicked_item))
+        #self.clicked_item = int(item.text())
 
     @Slot()
     def done_steptwo(self):  #完成第二页，保存配置信息
