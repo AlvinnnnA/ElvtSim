@@ -39,7 +39,7 @@ class logger:
     # 设置日志基本，这里设置为INFO，表示只有INFO级别及以上的会打印
     log.setLevel(logging.INFO)
 
-    # 日志接口，用户只需调用这里的接口即可，这里只定位了INFO, WARNING, ERROR三个级别的日志，可根据需要定义更多接口
+    # 日志接口，用户只需调用这里的接口即可
     @classmethod
     def debug(cls, msg):
         cls.log.debug(msg)
