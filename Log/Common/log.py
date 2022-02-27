@@ -1,10 +1,10 @@
-
-
 from lxml import etree
 import logging.handlers
 import logging
 import os
 import sys
+import time
+
 
 # 提供日志功能
 class logger:
@@ -15,7 +15,7 @@ class logger:
     # 读取日志文件保存路径
     logpath = root.find('logpath').text
     # 读取日志文件容量，转换为字节
-    logsize = 1024*1024*int(root.find('logsize').text)
+    logsize = 1024 * 1024 * int(root.find('logsize').text)
     # 读取日志文件保存个数
     lognum = int(root.find('lognum').text)
 
@@ -73,5 +73,3 @@ if __name__ == '__main__':
     for i in range(1):
         logger.info("syn_is_doing_handjob")
         logger.warning("There's whores in the house")
-
-
