@@ -5,7 +5,7 @@ from common_objects import Event
 
 
 class Elevator:
-    def __init__(self, mix_floor, max_floor, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
+    def __init__(self, min_floor, max_floor, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
         self.__event_enabled = True  # 是否启用事件处理器报送
         self.__verbose = False  # 是否启用啰嗦模式
         if not type(event_queue) == "multiprocessing.queues.Queue":  # 防止乱传参
@@ -21,7 +21,7 @@ class Elevator:
         self.elevator_state = 'static'  # 电梯的当前状态，默认是静止状态
         self.current_floor = 4  # 电梯当前所在楼层
         self.destination_floor = 1  # 电梯的目标楼层
-        self.MIN_FLOOR = mix_floor  # 电梯的最低停靠楼层
+        self.MIN_FLOOR = min_floor  # 电梯的最低停靠楼层
         self.MAX_FLOOR = max_floor  # 电梯的最高停靠楼层
         self.MAX_WEIGHT = 15  # 电梯的最高搭乘人数为15人
         self.elevator_clock = convert_time.time_to_num("06:00:00")  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
@@ -201,12 +201,12 @@ class Elevator:
 
 class Passenger:
     def __init__(self, uid, src_floor, dest_floor, call_time):
-        self.uid = uid
-        self.src_floor = src_floor
-        self.dest_floor = dest_floor
-        self.state = 'Waiting'
+        self.uid = uid  # 乘客的uid号
+        self.src_floor = src_floor  # 乘客的起始楼层
+        self.dest_floor = dest_floor  # 乘客的目标楼层
+        self.state = 'Waiting'  # 乘客的等待状态
         self.call_time = convert_time.time_to_num(call_time)  # 乘客储存是时间戳
-        self.into_elevator = None
+        self.into_elevator = None  # 乘客要进入的电梯
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)
