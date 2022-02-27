@@ -82,12 +82,12 @@ class Elevator:
             self.destination_floor = self.check_max()  # 检查目前能到的最高层，主要是当做一个比较的对象
             for passenger in self.waiting_list:
                 if passenger.dest_floor-passenger.src_floor > 0:     # 判断乘客按钮的方向
-                    if passenger.src_floor >= self.current_floor:
+                    if passenger.src_floor > self.current_floor:  # 今日增加了一个重量判断，将这里的等于号删去了，逻辑上应该没什么问题
                         pre_destination_floor = passenger.src_floor
                         if self.destination_floor > pre_destination_floor:
                             self.destination_floor = pre_destination_floor
             for passenger in self.elevator_list:
-                if passenger.dest_floor >= self.current_floor:
+                if passenger.dest_floor > self.current_floor:
                     pre_destination_floor = passenger.dest_floor
                     if self.destination_floor > pre_destination_floor:
                         self.destination_floor = pre_destination_floor
@@ -95,12 +95,12 @@ class Elevator:
             self.destination_floor = self.check_min()
             for passenger in self.waiting_list:
                 if passenger.dest_floor - passenger.src_floor < 0:  # 判断乘客是否是下行,顺带接走
-                    if passenger.src_floor <= self.current_floor:
+                    if passenger.src_floor < self.current_floor:
                         pre_destination_floor = passenger.src_floor
                         if self.destination_floor < pre_destination_floor:
                             self.destination_floor = pre_destination_floor
             for passenger in self.elevator_list:
-                if passenger.dest_floor <= self.current_floor:
+                if passenger.dest_floor < self.current_floor:
                     pre_destination_floor = passenger.dest_floor
                     if self.destination_floor < pre_destination_floor:
                         self.destination_floor = pre_destination_floor
@@ -173,11 +173,15 @@ class Elevator:
 
     def passenger_into(self, destination_floor):  # 判断是否有乘客进入，如果有，就在waiting列表中将其删除，在elevator列表中将其加入
         for passenger in self.waiting_list[:]:  # 遍历在复制列表中，删除在原先列表中，因为每删一个对象，列表会向前移动一下
-            if passenger.src_floor == destination_floor:
-                passenger.on_selected(passenger.into_elevator)
-                self.waiting_list.remove(passenger)
-                self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                print("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
+            if len(self.elevator_list) < self.MAX_WEIGHT:
+                if passenger.src_floor == destination_floor:
+                    passenger.on_selected(passenger.into_elevator)
+                    self.waiting_list.remove(passenger)
+                    self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
+                    print("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
+            elif len(self.elevator_list) == self.MAX_WEIGHT:
+                print('电梯人员已到达上限')
+                break
 
     def passenger_leave(self, destination_floor):   # 判断是否有乘客离开，如果有，就在elevator将其删除
         for passenger in self.elevator_list[:]:
@@ -188,8 +192,8 @@ class Elevator:
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
         print("门已开，请在10s内进入或者离开电梯")
-        self.passenger_into(destination_floor)
         self.passenger_leave(destination_floor)
+        self.passenger_into(destination_floor)
         for second in range(10):  # 同电梯运行时的时间判断
             self.elevator_clock = self.elevator_clock + 1
             self.call_elevator()

@@ -2,7 +2,6 @@
 事件处理器
 """
 import multiprocessing
-import time
 import traceback
 from threading import Thread, Timer
 from PySide6.QtCore import QObject, Signal, QEventLoop, QTimer

@@ -25,7 +25,7 @@
         err_prompt.exec()
 """
 from PySide6.QtWidgets import QMessageBox, QTextEdit
-from PySide6.QtCore import Slot, Signal, QObject, QEventLoop
+from PySide6.QtCore import Slot, Signal, QObject, QEventLoop, QTimer
 from common_objects import *
 
 

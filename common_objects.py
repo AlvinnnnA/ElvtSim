@@ -4,9 +4,9 @@
 import time
 
 class Event:  # 事件类型定义
-    def __init__(self, eventtype: str, eventinfo: str, pid: int, info_extra = None):
-        if not isinstance(eventtype, str) and isinttance(eventinfo, str) \
-                and isinstance(pid, int) and isinstance(info_extra, (NoneType, str)):
+    def __init__(self, eventtype: str, eventinfo: str, pid: int = None, info_extra=None):
+        if not isinstance(eventtype, str) and isinstance(eventinfo, str) \
+                and isinstance(pid, int) and isinstance(info_extra, (NoneType, str)):  # 有问题
             raise TypeError("事件初始化出现错误：传入参数类型错误")
         self.eventinfo = eventinfo
         self.eventtype = eventtype
