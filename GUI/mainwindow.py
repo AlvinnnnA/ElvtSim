@@ -148,7 +148,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        if self.configure["lang"] == 0:
+        if self.configure["lang"] == 0:  #配置检查
             MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u8fd0\u884c\u914d\u7f6e", None))
             self.actionGlobal_config.setText(QCoreApplication.translate("MainWindow", u"\u5168\u5c40\u914d\u7f6e", None))
             self.actionExit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
