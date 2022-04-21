@@ -4,11 +4,11 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from GUI.mainwindow import Ui_MainWindow
 from GUI.configgen import UIConfig
 
-CONF_PATH = "GUI/conf"
+CONF_PATH = "GUI/conf"  # 前端配置数据路径
 
 
 def get_frontend_conf():
-    path = CONF_PATH
+    path = CONF_PATH  # 前端配置数据
     try:
         with open(path + "front_conf.json") as file:
             conf = UIConfig(json.load(file))
@@ -16,7 +16,7 @@ def get_frontend_conf():
         with open(path + "default.json") as file:
             conf = UIConfig(json.load(file))
     finally:
-        default_dict = {
+        default_dict = {  # 这里是默认配置
             "lang": 0,
             "verbosity": 0
         }
