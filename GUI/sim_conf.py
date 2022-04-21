@@ -1,6 +1,7 @@
 """
 配置文件生成向导
 """
+import operator
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
@@ -12,15 +13,23 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
                                QProgressBar, QSizePolicy, QSpacerItem, QSpinBox,
                                QVBoxLayout, QWidget, QWizard, QWizardPage, QHBoxLayout, QListWidget, QListWidgetItem,
-                               QGridLayout, QCheckBox, QPushButton, QLineEdit, QButtonGroup)
+                               QGridLayout, QCheckBox, QPushButton, QLineEdit, QButtonGroup, QDialog)
 from GUI.configgen import ConfigData
 from common_objects import Event
 import os
 
 from GUI.wheels import ElvtTeamEventPrompt
 
-DEFAULT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 默认路径为根目录
 
+class AdvancedConfWindow(QDialog):
+    # 高级配置窗口
+    def __init__(self, *args, **kwargs):
+        super(AdvancedConfWindow, self).__init__(*args, **kwargs)
+
+    def set_checkbox(self, floors: int):
+        pass
 
 class Ui_NewSimConf(object):
     __verbose = True
@@ -277,22 +286,30 @@ class Ui_NewSimConf(object):
                                                         None))
         self.cfg_path_final.setText(QCoreApplication.translate("NewSimConf", u"Not Specified", None))
 
-        self.prompter = ElvtTeamEventPrompt()
-        self.clicked_item = 1
+        self.prompter = ElvtTeamEventPrompt()  # 错误提示器
+        self.clicked_item = 1  # 保存编辑对象
+        self.elevator_completion_status = {}  # 保存进度
 
         self.progressBar.setValue(0)
 
-        #self.elvt_priority.editingFinished.connect(self.check_input)
-        #self.elvt_capacity.editingFinished.connect(self.check_input)
+        self.edited = False  # 是否编辑控制位
+        self.floor_edited = False  # 是否编辑楼层设置
+        self.elvt_priority.textEdited.connect(self.edit_check)
+        self.elvt_capacity.textEdited.connect(self.edit_check)
+        self.odd_floors.stateChanged.connect(self.floor_edit_check)
+        self.even_floors.stateChanged.connect(self.floor_edit_check)
+        self.high_floors.stateChanged.connect(self.floor_edit_check)
+        self.low_floors.stateChanged.connect(self.floor_edit_check)
 
         self.listWidget.itemClicked.connect(self.change_conf_elvt)
+        self.advanced_setting.clicked.connect(self.advanced_settings_window)
 
-        self.current_working_dict = {}
-        self.current_working_dict["Elevators"] = []
+        #self.current_working_dict = {}
+        #self.current_working_dict["Elevators"] = []
         # retranslateUi
 
     @Slot()
-    def on_page_done(self, id):
+    def on_page_done(self, id):  # 点击下一页时进行判断
         if id == 2:
             self.done_basic()
             pass
@@ -300,121 +317,181 @@ class Ui_NewSimConf(object):
             self.done_steptwo()
 
     @Slot()
-    def check_input(self):
+    def check_input(self, prev_conf):  # 检查输入是否合法和是否产生更改
+        if not self.edit_check and not self.floor_edit_check:  # 是否产生过更改
+            return False
         box_input = [self.elvt_priority.text(), self.elvt_capacity.text()]
-        self.elvt_capacity.clear()
-        self.elvt_priority.clear()
+        available_floors = self.get_floor_setting()  # 取设置保存
+
+        if self.floor_edited:
+            self.odd_even_group.setExclusive(False)
+            self.high_low_group.setExclusive(False)
+            self.high_floors.setChecked(False)
+            self.low_floors.setChecked(False)
+            self.odd_floors.setChecked(False)
+            self.even_floors.setChecked(False)
+            self.odd_even_group.setExclusive(True)
+            self.high_low_group.setExclusive(True)  # 复位复选框
+            self.floor_edited = False   # 复位编辑控制位
+        self.elvt_capacity.setText("")
+        self.elvt_priority.setText("")  # 复位输入框
+
         for text in box_input:
-            if text == "":
+            if text == "":  # 输入区域非空
                 return False
-            elif not text.isdigit():
+            elif not text.isdigit():  # 输入整数
                 self.prompter.event_prompt(Event("Error", "Input only allows integer!\nError input is", text))
                 return False
+
+        box_input.append(tuple(available_floors))  # 楼层设置
         if self.__verbose:
             print("list returned")
+        self.edit_check = False  # 编辑记录复位
         return box_input
         pass
 
     @Slot()
+    def edit_check(self, text=None):
+        if self.__verbose:
+            print("Edited")
+        self.edit_check = True  # 编辑记录位
+
+    @Slot()
+    def floor_edit_check(self, text=None):
+        self.floor_edited = True  # 楼层设置编辑记录位
+
+    @Slot()
     def done_basic(self):  # 第一页结束，保存配置信息
-        def items(value):
+        def items(value):  # 工具：楼层生成函数
             itemlist = []
+            self.elevator_completion_status["Increment"] = int(100 / value)  # 计算进度条递增数
             for i in range(1, value+1):
                 itemlist.append(str(i))
+                self.elevator_completion_status[i] = {"Done": False, "Advanced Floors": False}
+                # 生成保存配置状态的字典，用于进度条的控制以及楼层配置的展示
             return itemlist
-        self.current_working_data = ConfigData(DEFAULT_DIRECTORY, True)
-        self.current_working_data.set_verbose(True)
+
+        self.listWidget.clear()  # 清除可选列表
+        self.listWidget.addItems(items(self.elvt_cnt.value()))  # 添加可选项
+        self.listWidget.item(0).setSelected(True)  # 选择项置于第一项
+
+        self.current_working_data = ConfigData(directory=ROOT_DIRECTORY, config_mode=True, verbose=True)  # 建立配置数据对象
+        #self.current_working_data.set_verbose(True)  # 罗嗦模式
         self.current_working_data.set_basic_info(self.elvt_cnt.value(),
                                                  self.floor_cnt.value(),
-                                                 self.under_floors.value())
+                                                 self.under_floors.value())  # 初始配置
+
         #self.current_working_dict["elvt_cnt"] = self.elvt_cnt.value()
         #print(type(self.elvt_cnt.value()),  self.elvt_cnt.value())
         #self.current_working_dict["floor_cnt"] = self.floor_cnt.value()
         #self.current_working_dict["under_floors"] = self.under_floors.value()
-        self.listWidget.clear()
-        self.listWidget.addItems(items(self.current_working_data.dict_data["elvt_cnt"]))
-        self.listWidget.item(0).setSelected(True)
 
-    def refill_configs(self, cfg_dict: dict):
+    def advanced_settings_window(self):
+
+        # TODO 高级配置窗口
+        pass
+
+    def refill_configs(self, cfg_dict: dict):  # 重填配置
         if cfg_dict["capacity"] is not None and cfg_dict["accepted_priority"] is not None:
-            self.elvt_capacity.setText(str(cfg_dict["capacity"]))
+            self.elvt_capacity.setText(str(cfg_dict["capacity"]))  # 点击已配置的电梯实现重填入配置框
             self.elvt_priority.setText(str(cfg_dict["accepted_priority"]))
+        # TODO 重填楼层设置
+        # TODO 实现自动禁用简单复选框
         pass
 
     def parse_floor_setting(self, floor_tuple: tuple):
+        # TODO 解析已有配置实现重填楼层设置复选框
         if floor_tuple is not None:
             pass
         pass
 
-    def get_floor_setting(self):
+    def get_floor_setting(self):  # 获取楼层设置
         def items(btmvalue, topvalue):
             if btmvalue == 1:
                 itemlist = []
             else:
                 itemlist = [1,]
-            for i in range(btmvalue, topvalue+1):
-                itemlist.append(str(i))
-            return itemlist
+            if self.__verbose:
+                print("generating list of", btmvalue, topvalue)
+            for i in range(int(btmvalue), int(topvalue+1)):
+                itemlist.append(i)
+            return itemlist  # 生成楼层列表
+
         odd = self.odd_floors.isChecked()
         even = self.even_floors.isChecked()
         high = self.high_floors.isChecked()
-        low = self.low_floors.isChecked()
+        low = self.low_floors.isChecked()  # 取设置信息
+        #print(self.high_floors.checkState())
         floors = self.current_working_data.dict_data["floor_cnt"]
-        available_floors = items(1, floors)
+        #available_floors = items(1, floors)  # 生成完整楼层列表
 
-        if floors % 2 != 0:
-            if high:
+        if not high and not low:
+            available_floors = items(1, floors)  # 生成完整楼层列表
+
+        elif floors % 2 != 0:  # 总层数为奇
+            if high:  # 高楼层
                 available_floors = items(((floors+1)/2)+1, floors)
-            elif low:
+            elif low:  # 低楼层
                 available_floors = items(1, (floors+1)/2)
 
-        else:
+        else:  # 总层数为偶
             if high:
                 available_floors = items((floors/2)+1, floors)
             elif low:
                 available_floors = items(1, floors/2)
 
-        if odd:
-            for floor in available_floors:
+        if odd:  # 选择奇数项
+            for floor in available_floors[1:]:
                 if floor % 2 == 0:
                     available_floors.remove(floor)
             return tuple(available_floors)
-        elif even:
-            for floor in available_floors:
+        elif even:  # 选择偶数项
+            for floor in available_floors[1:]:
                 if floor % 2 != 0:
                     available_floors.remove(floor)
             return tuple(available_floors)
         else:
             return tuple(available_floors)
-
         pass
 
-    def clear_configs(self):
-        self.odd_floors.setCheckState(Qt.CheckState.Unchecked)
-        self.even_floors.setCheckState(Qt.CheckState.Unchecked)
-        self.high_floors.setCheckState(Qt.CheckState.Unchecked)
-        self.low_floors.setCheckState(Qt.CheckState.Unchecked)
+    def progress_increment(self, index: int):  # 处理进度条递增
+        if self.elevator_completion_status[self.clicked_item]:
+            pass  # 已配置过的电梯再次配置不影响进度条
+        else:
+            self.elevator_completion_status[self.clicked_item] = True  # 未配置过更改控制位
+            if 100-self.progressBar.value() < self.elevator_completion_status["Increment"]*2:
+                self.progressBar.setValue(100)  # 对于递增数小数被舍去的情况做处理
+                # 如果进行到最后一个递增块自动设定值为100%
+            else:
+                self.progressBar.setValue(self.progressBar.value() + self.elevator_completion_status["Increment"])
+        pass
 
     @Slot()
-    def change_conf_elvt(self, item: QListWidgetItem):  # 更改正在配置的电梯对象
+    def change_conf_elvt(self, new_selected_elvt: QListWidgetItem):  # 更改正在配置的电梯对象
         #self.clicked_item = item
-        params = self.check_input()
-        if isinstance(params, list):
+        prev_elvt = self.current_working_data.get_elevator_config(self.clicked_item)  # 上一次点击的电梯
+        params = self.check_input(prev_elvt)  # 检查配置是否合法并且有更改
+
+        if isinstance(params, list):  # 有发生变动即写入配置
             self.current_working_data.set_elevator_config(self.clicked_item,
-                                                          self.get_floor_setting(),
+                                                          params[2],
                                                           int(params[0]),
                                                           None,
                                                           int(params[1]))
+            self.progress_increment(self.clicked_item)  # 进度条递增
 
-        self.clear_configs()
-        self.clicked_item = int(item.text())
-        self.refill_configs(self.current_working_data.get_elevator_config(self.clicked_item))
+        #self.clear_configs()
+        self.clicked_item = int(new_selected_elvt.text())  # 保存本次配置对应的对象
+        self.refill_configs(self.current_working_data.get_elevator_config(int(new_selected_elvt.text())))
+        # 重新填入配置
         #self.clicked_item = int(item.text())
 
     @Slot()
     def done_steptwo(self):  #完成第二页，保存配置信息
         self.cfg_path_final.setText(self.current_working_data.generate_data_file())
-        self.cfg_name_final.setText(self.current_working_data.file_dir_object.file_fullname)
+        # 生成文件，展示路径
+        self.cfg_name_final.setText(self.current_working_data.get_file_name())
+        # 展示生成文件名
         pass
 
 

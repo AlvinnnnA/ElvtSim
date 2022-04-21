@@ -25,8 +25,9 @@ from GUI.sim_conf import ConfigWizard
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow, rate):
+    def setupUi(self, MainWindow, rate, configure):
         self.rate = rate
+        self.configure = configure
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(int(800/self.rate), int(600/self.rate))
@@ -147,21 +148,40 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u8fd0\u884c\u914d\u7f6e", None))
-        self.actionGlobal_config.setText(QCoreApplication.translate("MainWindow", u"\u5168\u5c40\u914d\u7f6e", None))
-        self.actionExit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
-        self.sim_conf_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u4eff\u771f\u914d\u7f6e\u6570\u636e", None))
-        self.sim_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.sim_add.clicked.connect(self.conf_wizard)
-        self.sim_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.sim_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.user_info_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u7528\u6237\u4fe1\u606f", None))
-        self.usr_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.usr_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.usr_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.exit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
-        self.start_sim.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u4eff\u771f", None))
-        self.setttings.setTitle(QCoreApplication.translate("MainWindow", u"\u9009\u9879", None))
+        if self.configure["lang"] == 0:
+            MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u8fd0\u884c\u914d\u7f6e", None))
+            self.actionGlobal_config.setText(QCoreApplication.translate("MainWindow", u"\u5168\u5c40\u914d\u7f6e", None))
+            self.actionExit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
+            self.sim_conf_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u4eff\u771f\u914d\u7f6e\u6570\u636e", None))
+            self.sim_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.sim_add.clicked.connect(self.conf_wizard)
+            self.sim_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.sim_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.user_info_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u7528\u6237\u4fe1\u606f", None))
+            self.usr_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.usr_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.usr_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.exit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
+            self.start_sim.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u4eff\u771f", None))
+            self.setttings.setTitle(QCoreApplication.translate("MainWindow", u"\u9009\u9879", None))
+        elif self.configure["lang"] == 1:
+            MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"WIP", None))
+            self.actionGlobal_config.setText(
+                QCoreApplication.translate("MainWindow", u"\u5168\u5c40\u914d\u7f6e", None))
+            self.actionExit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
+            self.sim_conf_cont.setTitle(
+                QCoreApplication.translate("MainWindow", u"\u4eff\u771f\u914d\u7f6e\u6570\u636e", None))
+            self.sim_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.sim_add.clicked.connect(self.conf_wizard)
+            self.sim_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.sim_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.user_info_cont.setTitle(QCoreApplication.translate("MainWindow", u"\u7528\u6237\u4fe1\u606f", None))
+            self.usr_add.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.usr_edit.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.usr_refresh.setText(QCoreApplication.translate("MainWindow", u"...", None))
+            self.exit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
+            self.start_sim.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u4eff\u771f", None))
+            self.setttings.setTitle(QCoreApplication.translate("MainWindow", u"\u9009\u9879", None))
     # retranslateUi
 
     @Slot()

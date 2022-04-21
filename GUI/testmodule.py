@@ -17,7 +17,7 @@ import warnings
 from threading import Thread
 
 
-warnings.filterwarnings("ignore",category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class EmittingStr(QObject):

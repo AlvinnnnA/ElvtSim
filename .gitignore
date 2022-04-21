@@ -7,3 +7,8 @@
 /GUI/gui_res/example.json
 /.idea
 /Configs/
+/GUI/sim_wiz_wip.py
+/GUI/testwindow_wip.py
+/GUI/testwindow_wip.ui
+/GUI/running_ui_wip.ui
+/GUI/playground.py
