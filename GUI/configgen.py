@@ -8,6 +8,7 @@ import json
 import time
 #import traceback
 from enum import Enum
+from Log.Common import bifrost
 
 
 ELEVATOR_ITEM_INDEX = 7
@@ -121,8 +122,7 @@ class ConfigData:
         else:
             filename = time.strftime("Config at %y-%m-%d-%H-%M-%S", time.localtime())+'.json'
             self.file_dir_object = FilenameProcess(os.path.join(self.directory, "Configs", filename))
-            if self.__verbose:
-                print("Attempt to create file at", self.file_dir_object.file_dir)
+            bifrost.Reporter.debug("Attempt to create file at", self.file_dir_object.file_dir)
             with open(self.file_dir_object.file_dir, 'w') as f:
                 json.dump(self.dict_data, f, indent=4, separators=(',', ':'))
             return self.file_dir_object.file_dir

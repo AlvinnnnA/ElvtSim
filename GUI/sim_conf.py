@@ -410,7 +410,7 @@ class Ui_NewSimConf(object):
             if btmvalue == 1:
                 itemlist = []
             else:
-                itemlist = [1,]
+                itemlist = [1, ]
             if self.__verbose:
                 print("generating list of", btmvalue, topvalue)
             for i in range(int(btmvalue), int(topvalue+1)):
