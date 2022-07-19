@@ -1,8 +1,9 @@
 from Scheduler.Thread.thread import Passenger
 import my_parser
+import json
 
 
-def choice_allocation(elevator_number, choice_dictionary):  # 可选择性的多梯分配，电梯数量以及解析字典
+def choice_allocation(elevator_number, choice_dictionary):  # 可选择性的多梯分配，传入电梯数量以及解析字典
     if elevator_number == 2:
         elevator_one_list = []
         elevator_two_list = []
@@ -37,10 +38,12 @@ def choice_allocation(elevator_number, choice_dictionary):  # 可选择性的多
 
 elevator_one_choice = [3, 5]
 elevator_two_choice = [2, 4, 6]
-elevator_one_arrangement = {'min_floor': 1, 'max_floor': 6, 'elevator_choice': elevator_one_choice}
-elevator_two_arrangement = {'min_floor': 1, 'max_floor': 6, 'elevator_choice': elevator_two_choice}
-elevator_parse_list = [elevator_one_arrangement, elevator_two_arrangement]
-elevator_one, elevator_two, elevator_dictionary = my_parser.elevator_parser(elevator_parse_list)
+elevator_one_arrangement = {'min_floor': 1, 'max_floor': 6, 'elevator_choice': elevator_one_choice}  # 一号电梯的配置信息
+elevator_two_arrangement = {'min_floor': 1, 'max_floor': 6, 'elevator_choice': elevator_two_choice}  # 二号电梯的配置信息
+elevator_parse_dict ={'elevator_one': elevator_one_arrangement, 'elevator_two': elevator_two_arrangement}
+elevator_json = json.dumps(elevator_parse_dict, indent=4, ensure_ascii=False)  # 将配置信息文件转化为json （试验用）
+
+elevator_one, elevator_two, elevator_dictionary = my_parser.elevator_parser(elevator_json)
 total_passenger_list = []
 for i in range(20):
     total_passenger_list.append(Passenger(1, 3, 6, "08:00:00"))

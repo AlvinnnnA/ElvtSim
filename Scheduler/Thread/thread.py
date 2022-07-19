@@ -2,6 +2,7 @@ import random
 from Scheduler.Thread import convert_time
 import multiprocessing
 from common_objects import Event
+from Log.Common import bifrost
 
 
 class Elevator:
@@ -18,7 +19,9 @@ class Elevator:
                                    multiprocessing.current_process().pid,
                                    "Elevator")
             self.event_queue.put(register_event)
+        self.chime = bifrost.Chime
         self.elevator_state = 'static'  # 电梯的当前状态，默认是静止状态
+        self.elevator_speed = 're-start'  # 电梯的速度状态
         self.current_floor = 4  # 电梯当前所在楼层
         self.destination_floor = 1  # 电梯的目标楼层
         self.MIN_FLOOR = min_floor  # 电梯的最低停靠楼层
@@ -42,19 +45,54 @@ class Elevator:
             if self.destination_floor == self.current_floor:  # 如果电梯停下，检查是否应该换向
                 self.open_door(self.destination_floor)
                 self.check_state()
+                self.elevator_speed = 're-start'
                 continue
-            if self.elevator_state == 'up':   # 判断电梯运行状态
-                self.current_floor = self.current_floor+1
-                print('电梯已到达' + str(self.current_floor) + '层')
-                for second in range(5):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层五秒
-                    self.elevator_clock = self.elevator_clock + 1
-                    self.call_elevator()
+            if self.elevator_state == 'up':  # 判断电梯运行状态
+                self.current_floor = self.current_floor + 1
+                self.chime.info('电梯已到达' + str(self.current_floor) + '层')
+                if self.elevator_speed == 're-start':
+                    if self.destination_floor == self.current_floor:  # 如果起始层和最终层只差一层,调成15s
+                        for second in range(15):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层五秒
+                            self.elevator_clock = self.elevator_clock + 1
+                            self.call_elevator()
+                    else:
+                        for second in range(10):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层10秒
+                            self.elevator_clock = self.elevator_clock + 1
+                            self.call_elevator()
+                        self.elevator_speed = 'running'
+                if self.elevator_speed == 'running':  # 判断电梯速度状态
+                    for second in range(5):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层五秒
+                        self.elevator_clock = self.elevator_clock + 1
+                        self.call_elevator()
+                    if self.destination_floor == self.current_floor + 1:
+                        self.elevator_speed = 're-stop'
+                if self.elevator_speed == 're-stop':
+                    for second in range(10):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层10秒
+                        self.elevator_clock = self.elevator_clock + 1
+                        self.call_elevator()
             if self.elevator_state == 'down':
-                self.current_floor = self.current_floor-1
-                print('电梯已到达' + str(self.current_floor) + '层')
-                for second in range(5):  # 同上
-                    self.elevator_clock = self.elevator_clock + 1
-                    self.call_elevator()
+                self.current_floor = self.current_floor - 1
+                self.chime.info('电梯已到达' + str(self.current_floor) + '层')
+                if self.elevator_speed == 're-start':
+                    if self.destination_floor == self.current_floor:  # 如果起始层和最终层只差一层,调成15s
+                        for second in range(15):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层五秒
+                            self.elevator_clock = self.elevator_clock + 1
+                            self.call_elevator()
+                    else:
+                        for second in range(10):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层10秒
+                            self.elevator_clock = self.elevator_clock + 1
+                            self.call_elevator()
+                        self.elevator_speed = 'running'
+                if self.elevator_speed == 'running':  # 判断电梯速度状态
+                    for second in range(5):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层五秒
+                        self.elevator_clock = self.elevator_clock + 1
+                        self.call_elevator()
+                    if self.destination_floor == self.current_floor - 1:
+                        self.elevator_speed = 're-stop'
+                if self.elevator_speed == 're-stop':
+                    for second in range(10):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层10秒
+                        self.elevator_clock = self.elevator_clock + 1
+                        self.call_elevator()
 
     def search_called(self):    # 电梯调用函数寻找目的地
         if self.elevator_state == 'static':  # 电梯起始状态
@@ -78,6 +116,7 @@ class Elevator:
                         self.elevator_state = 'up'
                     elif self.destination_floor < self.current_floor:
                         self.elevator_state = 'down'
+            self.elevator_speed = 're-start'  # 找到目的地之后，修改速度状态
         if self.elevator_state == 'up':       # 同时检查等待乘客列表和电梯乘客列表，判断最快到达楼层
             self.destination_floor = self.check_max()  # 检查目前能到的最高层，主要是当做一个比较的对象
             for passenger in self.waiting_list:
@@ -178,9 +217,10 @@ class Elevator:
                     passenger.on_selected(passenger.into_elevator)
                     self.waiting_list.remove(passenger)
                     self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                    print("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
+                    self.chime.info("乘客" + str(passenger.uid) + "于" +
+                                    str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
             elif len(self.elevator_list) == self.MAX_WEIGHT:
-                print('电梯人员已到达上限')
+                self.chime.info('电梯人员已到达上限')
                 break
 
     def passenger_leave(self, destination_floor):   # 判断是否有乘客离开，如果有，就在elevator将其删除
@@ -188,10 +228,11 @@ class Elevator:
             if passenger.dest_floor == destination_floor:
                 self.elevator_list.remove(passenger)
                 self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
-                print("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time(self.elevator_clock)) + "离开电梯")
+                self.chime.info("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time
+                                                                      (self.elevator_clock)) + "离开电梯")
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
-        print("门已开，请在10s内进入或者离开电梯")
+        self.chime.info("门已开，请在10s内进入或者离开电梯")
         self.passenger_leave(destination_floor)
         self.passenger_into(destination_floor)
         for second in range(10):  # 同电梯运行时的时间判断
