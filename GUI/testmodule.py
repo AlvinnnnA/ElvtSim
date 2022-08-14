@@ -291,8 +291,9 @@ class TestTool(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    screen = app.screens()[1]
-    dpi = screen.devicePixelRatio() - 0.35
+    #screen = app.screens()[len(app.screens())-1]
+    #dpi = screen.devicePixelRatio()-0.35
+    dpi = 1
     window = TestTool(dpi)
     window.show()
     sys.exit(app.exec())

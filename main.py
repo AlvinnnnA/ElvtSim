@@ -17,7 +17,7 @@ def get_frontend_conf():
             conf = UIConfig(json.load(file))
     finally:
         default_dict = {  # 这里是默认配置
-            "lang": 0,
+            "lang": "Chinese",
             "verbosity": 0
         }
         conf = UIConfig(default_dict)
@@ -33,9 +33,9 @@ class MainWindow(QMainWindow):
 
 def activate():
     app = QApplication(sys.argv)
-    screen = app.screens()[1]
-    dpi = screen.devicePixelRatio() - 0.35
-    # dpi = 1
+    #screen = app.screens()[len(app.screens())-1]
+    #dpi = screen.devicePixelRatio() - 0.35
+    dpi = 1
     # print((dpi))
     ui_conf = get_frontend_conf()
     window = MainWindow(dpi, ui_conf)
