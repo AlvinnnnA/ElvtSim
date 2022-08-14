@@ -135,4 +135,7 @@ class UIConfig:
     def __init__(self, conf_dict):
         if not isinstance(conf_dict, dict):
             raise TypeError("Bad type in", str(conf_dict), "type is", type(conf_dict))
-        pass
+        self.conf_dict = conf_dict
+
+    def lang(self):
+        return self.conf_dict["lang"]

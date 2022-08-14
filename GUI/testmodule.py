@@ -1,6 +1,8 @@
 """
 这里是图形化测试工具！！
 """
+import platform
+
 from PySide6.QtCore import *
 from PySide6.QtGui import (QAction, QTextCursor)
 from PySide6.QtWidgets import *
@@ -291,8 +293,10 @@ class TestTool(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    screen = app.screens()[1]
+    screen = app.screens()[0]
     dpi = screen.devicePixelRatio() - 0.35
+    if platform.system() == "Darwin":
+        dpi = 1
     window = TestTool(dpi)
     window.show()
     sys.exit(app.exec())
