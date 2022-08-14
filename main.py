@@ -3,6 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMainWindow
 from GUI.mainwindow import Ui_MainWindow
 from GUI.configgen import UIConfig
+import platform
 
 CONF_PATH = "GUI/conf"  # 前端配置数据路径
 
@@ -17,7 +18,7 @@ def get_frontend_conf():
             conf = UIConfig(json.load(file))
     finally:
         default_dict = {  # 这里是默认配置
-            "lang": "Chinese",
+            "lang": 0,
             "verbosity": 0
         }
         conf = UIConfig(default_dict)
@@ -33,10 +34,12 @@ class MainWindow(QMainWindow):
 
 def activate():
     app = QApplication(sys.argv)
-    #screen = app.screens()[len(app.screens())-1]
-    #dpi = screen.devicePixelRatio() - 0.35
-    dpi = 1
+    screen = app.screens()[0]
+    dpi = screen.devicePixelRatio() - 0.35
+    # dpi = 1
     # print((dpi))
+    if platform.system() == "Darwin":
+        dpi = 1
     ui_conf = get_frontend_conf()
     window = MainWindow(dpi, ui_conf)
     window.show()
