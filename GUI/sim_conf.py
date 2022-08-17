@@ -3,6 +3,7 @@
 """
 import operator
 import sys
+from threading import Thread
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
@@ -29,7 +30,7 @@ class AdvancedConf(QDialog):
 
     def set_basic(self, Dialog):
         # TODO 自动生成勾选界面
-        bifrost.Reporter.
+        bifrost.Reporter.info("Advanced configure window", self)
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
         Dialog.resize(400, 300)
@@ -74,8 +75,11 @@ class AdvancedConf(QDialog):
         self.buttonBox.rejected.connect(Dialog.close)
 
         QMetaObject.connectSlotsByName(Dialog)
+        bifrost.Reporter.info("Advanced Configure window", self, "finished basic display setting")
 
     def set_display(self, Dialog, floors:int):
+        bifrost.Reporter.info("Advanced configure window", self,
+                              "begin display configuration")
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.checkBox_2.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
         self.checkBox.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
@@ -90,6 +94,7 @@ class AdvancedConf(QDialog):
 class Ui_NewSimConf(object):
     __verbose = True
     def setupUi(self, NewSimConf, rate):
+        bifrost.Reporter.info("Config wizard", self, "initiated")
         if not NewSimConf.objectName():
             NewSimConf.setObjectName(u"NewSimConf")
         NewSimConf.setWindowModality(Qt.ApplicationModal)
@@ -367,19 +372,24 @@ class Ui_NewSimConf(object):
     @Slot()
     def on_page_done(self, id):  # 点击下一页时进行判断
         if id == 2:
+            bifrost.Reporter.info("Config wizard", self, "completed Page 1, calling \"done_basic\"")
             self.done_basic()
             pass
         elif id == 3:
+            bifrost.Reporter.info("Config wizard", self, "completed Page 2, calling \"done_steptwo\"")
             self.done_steptwo()
 
     @Slot()
     def check_input(self, prev_conf):  # 检查输入是否合法和是否产生更改
+        bifrost.Reporter.info(self, "Conducting input check")
         if not self.edit_check and not self.floor_edit_check:  # 是否产生过更改
+            bifrost.Reporter.info("Input check passed with no changes made")
             return False
         box_input = [self.elvt_priority.text(), self.elvt_capacity.text()]
         available_floors = self.get_floor_setting()  # 取设置保存
 
         if self.floor_edited:
+            bifrost.Reporter.info("Floor edited, resetting checkbox")
             self.odd_even_group.setExclusive(False)
             self.high_low_group.setExclusive(False)
             self.high_floors.setChecked(False)
@@ -389,36 +399,40 @@ class Ui_NewSimConf(object):
             self.odd_even_group.setExclusive(True)
             self.high_low_group.setExclusive(True)  # 复位复选框
             self.floor_edited = False   # 复位编辑控制位
+        bifrost.Reporter.info("Resetting inputbox")
         self.elvt_capacity.setText("")
         self.elvt_priority.setText("")  # 复位输入框
 
         for text in box_input:
             if text == "":  # 输入区域非空
+                bifrost.Reporter.info("Input check passed, input area untouched")
                 return False
             elif not text.isdigit():  # 输入整数
+                bifrost.Reporter.error("Input only allows integer!\nError input is", text)
                 self.prompter.event_prompt(Event("Error", "Input only allows integer!\nError input is", text))
                 return False
 
         box_input.append(tuple(available_floors))  # 楼层设置
-        if self.__verbose:
-            print("list returned")
+        bifrost.Reporter.info("list returned")
         self.edit_check = False  # 编辑记录复位
         return box_input
         pass
 
     @Slot()
     def edit_check(self, text=None):
-        if self.__verbose:
-            print("Edited")
+        bifrost.Reporter.info("Edit check triggered")
         self.edit_check = True  # 编辑记录位
 
     @Slot()
     def floor_edit_check(self, text=None):
+        bifrost.Reporter.info("Floor edit check triggered")
         self.floor_edited = True  # 楼层设置编辑记录位
 
     @Slot()
     def done_basic(self):  # 第一页结束，保存配置信息
         def items(value):  # 工具：楼层生成函数
+            bifrost.Reporter.info("Tool function: floor list generator called",
+                                  "Floor count:", value)
             itemlist = []
             self.elevator_completion_status["Increment"] = int(100 / value)  # 计算进度条递增数
             for i in range(1, value+1):
@@ -427,12 +441,16 @@ class Ui_NewSimConf(object):
                 # 生成保存配置状态的字典，用于进度条的控制以及楼层配置的展示
             return itemlist
 
+        bifrost.Reporter.info("Selection list initiating")
         self.listWidget.clear()  # 清除可选列表
         self.listWidget.addItems(items(self.elvt_cnt.value()))  # 添加可选项
+        bifrost.Reporter.info("Selection list initiated")
         self.listWidget.item(0).setSelected(True)  # 选择项置于第一项
 
+        bifrost.Reporter.info("Initiating ConfigData object")
         self.current_working_data = ConfigData(directory=ROOT_DIRECTORY, config_mode=True, verbose=True)  # 建立配置数据对象
         #self.current_working_data.set_verbose(True)  # 罗嗦模式
+        bifrost.Reporter.info("Setting ConfigData object", self)
         self.current_working_data.set_basic_info(self.elvt_cnt.value(),
                                                  self.floor_cnt.value(),
                                                  self.under_floors.value())  # 初始配置
@@ -443,12 +461,14 @@ class Ui_NewSimConf(object):
         #self.current_working_dict["under_floors"] = self.under_floors.value()
 
     def advanced_settings_window(self):
+        bifrost.Reporter.info("Starting advanced settings window")
         self.adv_window = AdvancedConfWindow(self.current_working_data.get_elevator_count())
         self.adv_window.exec_()
         # TODO 高级配置窗口
         pass
 
     def refill_configs(self, cfg_dict: dict):  # 重填配置
+        bifrost.Reporter.info("Config refill initiated")
         if cfg_dict["capacity"] is not None and cfg_dict["accepted_priority"] is not None:
             self.elvt_capacity.setText(str(cfg_dict["capacity"]))  # 点击已配置的电梯实现重填入配置框
             self.elvt_priority.setText(str(cfg_dict["accepted_priority"]))
@@ -457,23 +477,26 @@ class Ui_NewSimConf(object):
         pass
 
     def parse_floor_setting(self, floor_tuple: tuple):
+        bifrost.Reporter.info("Simple floor setting re-parsing for filling of checkbox")
         # TODO 解析已有配置实现重填楼层设置复选框
         if floor_tuple is not None:
             pass
         pass
 
     def get_floor_setting(self):  # 获取楼层设置
-        def items(btmvalue, topvalue):
+        bifrost.Reporter.info("Floor setting checkbox parsing")
+        def items(btmvalue: int, topvalue: int):
+            bifrost.Reporter.info("Tool function called, "
+                                  "generating items list ranging", btmvalue, topvalue)
             if btmvalue == 1:
                 itemlist = []
             else:
                 itemlist = [1, ]
-            if self.__verbose:
-                print("generating list of", btmvalue, topvalue)
             for i in range(int(btmvalue), int(topvalue+1)):
                 itemlist.append(i)
             return itemlist  # 生成楼层列表
 
+        bifrost.Reporter.info("Checking state of checkboxes")
         odd = self.odd_floors.isChecked()
         even = self.even_floors.isChecked()
         high = self.high_floors.isChecked()
@@ -513,21 +536,28 @@ class Ui_NewSimConf(object):
 
     def progress_increment(self, index: int):  # 处理进度条递增
         if self.elevator_completion_status[self.clicked_item]:
+            bifrost.Reporter.info("Elevator configure done, "
+                                  "passing progressbar increment")
             pass  # 已配置过的电梯再次配置不影响进度条
         else:
+            bifrost.Reporter.info("Processing progressbar increment")
             self.elevator_completion_status[self.clicked_item] = True  # 未配置过更改控制位
             if 100-self.progressBar.value() < self.elevator_completion_status["Increment"]*2:
+                bifrost.Reporter.info("progressbar reached last block")
                 self.progressBar.setValue(100)  # 对于递增数小数被舍去的情况做处理
                 # 如果进行到最后一个递增块自动设定值为100%
             else:
                 self.progressBar.setValue(self.progressBar.value() + self.elevator_completion_status["Increment"])
         pass
+        
 
     @Slot()
     def change_conf_elvt(self, new_selected_elvt: QListWidgetItem):  # 更改正在配置的电梯对象
         #self.clicked_item = item
+        bifrost.Reporter.info("New item", new_selected_elvt.text(),
+                              "clicked, shifting current config elevator")
         prev_elvt = self.current_working_data.get_elevator_config(self.clicked_item)  # 上一次点击的电梯
-        params = self.check_input(prev_elvt)  # 检查配置是否合法并且有更改
+        params = self.check_input(prev_elvt)
 
         if isinstance(params, list):  # 有发生变动即写入配置
             self.current_working_data.set_elevator_config(self.clicked_item,
@@ -570,4 +600,3 @@ class AdvancedConfWindow(QDialog):
         self.ui = AdvancedConf()
         self.ui.set_basic(self)
         self.ui.set_display(self, floor)
-

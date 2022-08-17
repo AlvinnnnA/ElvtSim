@@ -27,18 +27,15 @@ class FilenameProcess:  # 取文件名等相关信息
 
 
     def __init__(self, file_dir, mode: WorkingMode = WorkingMode.Data, verbose=False):
-        if verbose:
-            print("filename object set mode", mode)
+        bifrost.Reporter.info("Filename object initiated,", mode)
         if mode == WorkingMode.Data:  # 数据模式
-            if verbose:
-                print("filename data init")
+            bifrost.Reporter.info("Filename [data] object init")
             self.file_dir = file_dir
             (self.path, self.file_fullname) = os.path.split(self.file_dir)
             (self.file_name, file_ext) = os.path.splitext(self.file_fullname)  # self.file_name:文件名（不含扩展名）
             self.file_ext = file_ext.strip(".")
         elif mode == WorkingMode.Config:
-            if verbose:
-                print("filename config init")
+            bifrost.Reporter.info("Filename [Config] object init")
             self.path = file_dir
 
 
@@ -56,16 +53,15 @@ class ConfigData:
         else:
             self.file_dir_object = FilenameProcess(directory, WorkingMode.Data, self.__verbose)
         if self.__verbose:
-            print("Verbosity enabled in ConfigData object at", self)
-            print("ConfigData Object Basic data:\nDirectory:", self.directory)
+            bifrost.Reporter.info("ConfigData object initiated at", self)
+            bifrost.Reporter.info("ConfigData object data directory:", self.directory)
         pass
 
-    def set_verbose(self, choice: bool):
-        self.__verbose = choice  # 罗嗦模式
 
     def set_basic_info(self, elvt_cnt: int, floor_cnt: int, under_floors: int):
         # 基础信息设置
         if not isinstance(elvt_cnt, int) and isinstance(floor_cnt, int) and isinstance(under_floors, int):
+            bifrost.Reporter.error("Basic info arguments' type does not match expected")
             raise TypeError("Basic info arguments' type does not match expected")
         else:
             self.dict_data["elvt_cnt"] = elvt_cnt  # 填入配置
@@ -74,7 +70,7 @@ class ConfigData:
             self.dict_data["under_floors"] = under_floors
 
             if self.__verbose:
-                print("initial config done!", self.dict_data)
+                bifrost.Reporter.info("initial config done!", self.dict_data)
 
             self.dict_data["elevators"] = []
             for index in range(1, elvt_cnt + 1):  # 生成电梯对象
@@ -82,19 +78,18 @@ class ConfigData:
                                                     "accepted_priority": None,
                                                     "service_duration": None,
                                                     "capacity": None})
-            if self.__verbose:
-                print("Elevators generated", self.dict_data["elevators"])
+            bifrost.Reporter.info("Elevators generated", self.dict_data["elevators"])
 
     def set_config_name(self, use_file_name: bool = True, name: str = None):  # 设置配置名
         if use_file_name and isinstance(self.file_dir_object, FilenameProcess):
             self.name = self.file_dir_object.file_name  # 使用文件名
         else:
             if not isinstance(name, str):
-                raise TypeError("传入错误类型")
+                bifrost.Reporter.error("Bad type error. Expected str, got", type(name))
+                raise TypeError("Bad type error. Expected str, got", type(name))
             else:
                 self.name = name
-        if self.__verbose:
-            print("Config name set!", self.name)
+        bifrost.Reporter.info("Config name set!", self.name)
 
     def get_elevator_count(self):
         return self.dict_data["elvt_cnt"]
@@ -103,6 +98,7 @@ class ConfigData:
         if self.dict_data["elevators"][index-1]["index"] == index:
             return self.dict_data["elevators"][index-1]
         else:
+            bifrost.Reporter.error("Requested elevator not found")
             raise ValueError("Requested elevator not found")
 
     def set_elevator_config(self, index: int, floors: tuple = None,
@@ -114,14 +110,14 @@ class ConfigData:
             elevator["accepted_priority"] = accepted_priority
             elevator["service_duration"] = service_duration
             elevator["capacity"] = capacity
-            if self.__verbose:
-                print("Elevator", index, "config is set", elevator)
+            bifrost.Reporter.info("Elevator", index, "config is set", elevator)
 
         pass
 
     def generate_data_file(self):  # 从字典生成配置文件
         if self.directory is None:  # 先确定路径
-            raise AttributeError("未指定路径，不能生成新数据")
+            bifrost.Reporter.error("No directory specified. Unable to generate data file")
+            raise AttributeError("No directory specified. Unable to generate data file")
         else:
             filename = time.strftime("Config at %y-%m-%d-%H-%M-%S", time.localtime())+'.json'
             self.file_dir_object = FilenameProcess(os.path.join(self.directory, "Configs", filename))
@@ -137,8 +133,9 @@ class ConfigData:
 class UIConfig:
     def __init__(self, conf_dict):
         if not isinstance(conf_dict, dict):
-            raise TypeError("Bad type in", str(conf_dict), "type is", type(conf_dict))
+            bifrost.Reporter.error("Bad type. Expected dict, got", type(conf_dict))
+            raise TypeError("Bad type. Expected dict, got", type(conf_dict))
         self.conf_dict = conf_dict
 
-    def lang(self):
+    def get_lang(self):
         return self.conf_dict["lang"]
