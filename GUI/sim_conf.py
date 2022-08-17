@@ -2,6 +2,7 @@
 配置文件生成向导
 """
 import operator
+import sys
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
@@ -13,22 +14,77 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
                                QProgressBar, QSizePolicy, QSpacerItem, QSpinBox,
                                QVBoxLayout, QWidget, QWizard, QWizardPage, QHBoxLayout, QListWidget, QListWidgetItem,
-                               QGridLayout, QCheckBox, QPushButton, QLineEdit, QButtonGroup, QDialog)
+                               QGridLayout, QCheckBox, QPushButton, QLineEdit, QButtonGroup, QDialog, QDialogButtonBox)
 from GUI.configgen import ConfigData
 from common_objects import Event
 import os
 
 from GUI.wheels import ElvtTeamEventPrompt
+from Log.Common import bifrost
 
 ROOT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 默认路径为根目录
 
-class AdvancedConfWindow(QDialog):
-    # 高级配置窗口
-    def __init__(self, *args, **kwargs):
-        super(AdvancedConfWindow, self).__init__(*args, **kwargs)
+class AdvancedConf(QDialog):
 
-    def set_checkbox(self, floors: int):
+    def set_basic(self, Dialog):
+        # TODO 自动生成勾选界面
+        bifrost.Reporter.
+        if not Dialog.objectName():
+            Dialog.setObjectName(u"Dialog")
+        Dialog.resize(400, 300)
+        self.buttonBox = QDialogButtonBox(Dialog)
+        self.buttonBox.setObjectName(u"buttonBox")
+        self.buttonBox.setGeometry(QRect(290, 20, 81, 241))
+        self.buttonBox.setOrientation(Qt.Vertical)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        self.buttonBox.setWindowModality(Qt.WindowModal)
+        self.gridLayoutWidget = QWidget(Dialog)
+        self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
+        self.gridLayoutWidget.setGeometry(QRect(20, 30, 251, 221))
+        self.gridLayout = QGridLayout(self.gridLayoutWidget)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.checkBox_2 = QCheckBox(self.gridLayoutWidget)
+        self.checkBox_2.setObjectName(u"checkBox_2")
+
+        self.gridLayout.addWidget(self.checkBox_2, 4, 0, 1, 1)
+
+        self.checkBox = QCheckBox(self.gridLayoutWidget)
+        self.checkBox.setObjectName(u"checkBox")
+
+        self.gridLayout.addWidget(self.checkBox, 0, 0, 1, 1)
+
+        self.checkBox_3 = QCheckBox(self.gridLayoutWidget)
+        self.checkBox_3.setObjectName(u"checkBox_3")
+
+        self.gridLayout.addWidget(self.checkBox_3, 3, 0, 1, 1)
+
+        self.checkBox_4 = QCheckBox(self.gridLayoutWidget)
+        self.checkBox_4.setObjectName(u"checkBox_4")
+
+        self.gridLayout.addWidget(self.checkBox_4, 2, 0, 1, 1)
+
+        self.checkBox_5 = QCheckBox(self.gridLayoutWidget)
+        self.checkBox_5.setObjectName(u"checkBox_5")
+
+        self.gridLayout.addWidget(self.checkBox_5, 1, 0, 1, 1)
+
+        self.buttonBox.accepted.connect(Dialog.close)
+        self.buttonBox.rejected.connect(Dialog.close)
+
+        QMetaObject.connectSlotsByName(Dialog)
+
+    def set_display(self, Dialog, floors:int):
+        Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
+        self.checkBox_2.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
+        self.checkBox.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
+        self.checkBox_3.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
+        self.checkBox_4.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
+        self.checkBox_5.setText(QCoreApplication.translate("Dialog", u"CheckBox", None))
+
+    def __set_checkbox(self, floors: list):
+        # TODO 根据已有设置生成勾选
         pass
 
 class Ui_NewSimConf(object):
@@ -387,7 +443,8 @@ class Ui_NewSimConf(object):
         #self.current_working_dict["under_floors"] = self.under_floors.value()
 
     def advanced_settings_window(self):
-
+        self.adv_window = AdvancedConfWindow(self.current_working_data.get_elevator_count())
+        self.adv_window.exec_()
         # TODO 高级配置窗口
         pass
 
@@ -505,3 +562,12 @@ class ConfigWizard(QWizard):
         self.ui = Ui_NewSimConf()
         self.ui.setupUi(self, rate)
         #self.show()
+
+
+class AdvancedConfWindow(QDialog):
+    def __init__(self, floor: int):
+        super(AdvancedConfWindow, self).__init__()
+        self.ui = AdvancedConf()
+        self.ui.set_basic(self)
+        self.ui.set_display(self, floor)
+

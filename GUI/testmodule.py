@@ -9,7 +9,7 @@ from PySide6.QtWidgets import *
 
 from common_objects import *
 from wheels import *
-from GUI.sim_conf import ConfigWizard
+from GUI.sim_conf import *
 
 import multiprocessing
 import eventhandler
@@ -220,7 +220,8 @@ class Ui_TestWindow(object):
         self.pushButton_31.setText(QCoreApplication.translate("TestWindow", u"Config reader", None))
         self.pushButton_32.setText(QCoreApplication.translate("TestWindow", u"User reader", None))
         self.pushButton_33.setText(QCoreApplication.translate("TestWindow", u"User dispatcher", None))
-        self.pushButton_34.setText(QCoreApplication.translate("TestWindow", u"Reserved", None))
+        self.pushButton_34.setText(QCoreApplication.translate("TestWindow", u"AdvConfWindow", None))
+        self.pushButton_34.clicked.connect(self.adv_conf_test)
 
         self.label_3.setText(QCoreApplication.translate("TestWindow", u"GUI", None))
         self.pushButton_11.setText(QCoreApplication.translate("TestWindow", u"Error prompt", None))
@@ -282,6 +283,10 @@ class Ui_TestWindow(object):
 
         eventhandler.kill_handler(queue)
 
+    def adv_conf_test(self):
+        foo = AdvancedConfWindow(3)
+        foo.exec_()
+        pass
 
 
 class TestTool(QMainWindow):

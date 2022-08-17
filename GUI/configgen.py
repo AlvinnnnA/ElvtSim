@@ -96,6 +96,9 @@ class ConfigData:
         if self.__verbose:
             print("Config name set!", self.name)
 
+    def get_elevator_count(self):
+        return self.dict_data["elvt_cnt"]
+
     def get_elevator_config(self, index: int):  # 获取索引为index的电梯对象
         if self.dict_data["elevators"][index-1]["index"] == index:
             return self.dict_data["elevators"][index-1]

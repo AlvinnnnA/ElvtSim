@@ -10,6 +10,18 @@ class Reporter:
     def debug(self, *args):
         print("Debug", args)
 
+    @classmethod
+    def info(self, *args):
+        print("Info", args)
+
+    @classmethod
+    def error(self, *args):
+        print("Error", args)
+
+    @classmethod
+    def critical(self, *args):
+        print("Critical", args)
+
 
 class Chime:
     def __init__(self):
