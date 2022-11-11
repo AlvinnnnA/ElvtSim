@@ -1,15 +1,12 @@
 """
 保存一些配置文件相关的类和处理
 生成，文件路径和文件名处理等
-常量值版本：2/8/22
 """
-import os
 import json
+import os
 import time
-#import traceback
 from enum import Enum
 from Log.Common import bifrost
-
 
 ELEVATOR_ITEM_INDEX = 7
 
@@ -18,13 +15,13 @@ class WorkingMode(Enum):  # 运行模式枚举类
     Data = "Data"
     Config = "Config"
 
+
 class FilenameProcess:  # 取文件名等相关信息
     file_dir = ""  # 文件路径
     path = ""  # 目录路径
     file_fullname = ""  # 文件全名
     file_name = ""
     file_ext = ""  # 文件扩展名
-
 
     def __init__(self, file_dir, mode: WorkingMode = WorkingMode.Data, verbose=False):
         bifrost.Reporter.info("Filename object initiated,", mode)
@@ -56,7 +53,6 @@ class ConfigData:
             bifrost.Reporter.info("ConfigData object initiated at", self)
             bifrost.Reporter.info("ConfigData object data directory:", self.directory)
         pass
-
 
     def set_basic_info(self, elvt_cnt: int, floor_cnt: int, under_floors: int):
         # 基础信息设置
@@ -95,8 +91,8 @@ class ConfigData:
         return self.dict_data["elvt_cnt"]
 
     def get_elevator_config(self, index: int):  # 获取索引为index的电梯对象
-        if self.dict_data["elevators"][index-1]["index"] == index:
-            return self.dict_data["elevators"][index-1]
+        if self.dict_data["elevators"][index - 1]["index"] == index:
+            return self.dict_data["elevators"][index - 1]
         else:
             bifrost.Reporter.error("Requested elevator not found")
             raise ValueError("Requested elevator not found")
@@ -119,7 +115,7 @@ class ConfigData:
             bifrost.Reporter.error("No directory specified. Unable to generate data file")
             raise AttributeError("No directory specified. Unable to generate data file")
         else:
-            filename = time.strftime("Config at %y-%m-%d-%H-%M-%S", time.localtime())+'.json'
+            filename = time.strftime("Config at %y-%m-%d-%H-%M-%S", time.localtime()) + '.json'
             self.file_dir_object = FilenameProcess(os.path.join(self.directory, "Configs", filename))
             bifrost.Reporter.debug("Attempt to create file at", self.file_dir_object.file_dir)
             with open(self.file_dir_object.file_dir, 'w') as f:
@@ -129,6 +125,7 @@ class ConfigData:
     def get_file_name(self):
         return self.file_dir_object.file_fullname
         pass
+
 
 class UIConfig:
     def __init__(self, conf_dict):

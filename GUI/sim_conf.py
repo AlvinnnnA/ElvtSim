@@ -6,12 +6,12 @@ import sys
 from threading import Thread
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt, Slot)
+                            QMetaObject, QObject, QPoint, QRect,
+                            QSize, QTime, QUrl, Qt, Slot)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+                           QFont, QFontDatabase, QGradient, QIcon,
+                           QImage, QKeySequence, QLinearGradient, QPainter,
+                           QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
                                QProgressBar, QSizePolicy, QSpacerItem, QSpinBox,
                                QVBoxLayout, QWidget, QWizard, QWizardPage, QHBoxLayout, QListWidget, QListWidgetItem,
@@ -24,6 +24,8 @@ from GUI.wheels import ElvtTeamEventPrompt
 from Log.Common import bifrost
 
 ROOT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
 # 默认路径为根目录
 
 class AdvancedConf(QDialog):
@@ -77,7 +79,7 @@ class AdvancedConf(QDialog):
         QMetaObject.connectSlotsByName(Dialog)
         bifrost.Reporter.info("Advanced Configure window", self, "finished basic display setting")
 
-    def set_display(self, Dialog, floors:int):
+    def set_display(self, Dialog, floors: int):
         bifrost.Reporter.info("Advanced configure window", self,
                               "begin display configuration")
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
@@ -91,14 +93,16 @@ class AdvancedConf(QDialog):
         # TODO 根据已有设置生成勾选
         pass
 
+
 class Ui_NewSimConf(object):
-    __verbose = True
+    __verbose = True  # TODO put verbosity in config file
+
     def setupUi(self, NewSimConf, rate):
         bifrost.Reporter.info("Config wizard", self, "initiated")
         if not NewSimConf.objectName():
             NewSimConf.setObjectName(u"NewSimConf")
         NewSimConf.setWindowModality(Qt.ApplicationModal)
-        NewSimConf.resize(423/rate, 326/rate)
+        NewSimConf.resize(423 / rate, 326 / rate)
         NewSimConf.setLocale(QLocale(QLocale.Chinese, QLocale.China))
         NewSimConf.setSizeGripEnabled(False)
         NewSimConf.setModal(True)
@@ -224,7 +228,7 @@ class Ui_NewSimConf(object):
         self.odd_even_group = QButtonGroup()
         self.odd_even_group.addButton(self.odd_floors)
         self.odd_even_group.addButton(self.even_floors)
-        #self.odd_even_group.exclusive()
+        # self.odd_even_group.exclusive()
 
         self.floors_cfg_group.addWidget(self.even_floors, 0, 1, 1, 1)
 
@@ -299,6 +303,7 @@ class Ui_NewSimConf(object):
         self.retranslateUi(NewSimConf)
 
         QMetaObject.connectSlotsByName(NewSimConf)
+
     # setupUi
 
     def retranslateUi(self, NewSimConf):
@@ -365,8 +370,8 @@ class Ui_NewSimConf(object):
         self.listWidget.itemClicked.connect(self.change_conf_elvt)
         self.advanced_setting.clicked.connect(self.advanced_settings_window)
 
-        #self.current_working_dict = {}
-        #self.current_working_dict["Elevators"] = []
+        # self.current_working_dict = {}
+        # self.current_working_dict["Elevators"] = []
         # retranslateUi
 
     @Slot()
@@ -398,7 +403,7 @@ class Ui_NewSimConf(object):
             self.even_floors.setChecked(False)
             self.odd_even_group.setExclusive(True)
             self.high_low_group.setExclusive(True)  # 复位复选框
-            self.floor_edited = False   # 复位编辑控制位
+            self.floor_edited = False  # 复位编辑控制位
         bifrost.Reporter.info("Resetting inputbox")
         self.elvt_capacity.setText("")
         self.elvt_priority.setText("")  # 复位输入框
@@ -435,7 +440,7 @@ class Ui_NewSimConf(object):
                                   "Floor count:", value)
             itemlist = []
             self.elevator_completion_status["Increment"] = int(100 / value)  # 计算进度条递增数
-            for i in range(1, value+1):
+            for i in range(1, value + 1):
                 itemlist.append(str(i))
                 self.elevator_completion_status[i] = {"Done": False, "Advanced Floors": False}
                 # 生成保存配置状态的字典，用于进度条的控制以及楼层配置的展示
@@ -449,22 +454,21 @@ class Ui_NewSimConf(object):
 
         bifrost.Reporter.info("Initiating ConfigData object")
         self.current_working_data = ConfigData(directory=ROOT_DIRECTORY, config_mode=True, verbose=True)  # 建立配置数据对象
-        #self.current_working_data.set_verbose(True)  # 罗嗦模式
         bifrost.Reporter.info("Setting ConfigData object", self)
         self.current_working_data.set_basic_info(self.elvt_cnt.value(),
                                                  self.floor_cnt.value(),
                                                  self.under_floors.value())  # 初始配置
 
-        #self.current_working_dict["elvt_cnt"] = self.elvt_cnt.value()
-        #print(type(self.elvt_cnt.value()),  self.elvt_cnt.value())
-        #self.current_working_dict["floor_cnt"] = self.floor_cnt.value()
-        #self.current_working_dict["under_floors"] = self.under_floors.value()
+        # self.current_working_dict["elvt_cnt"] = self.elvt_cnt.value()
+        # print(type(self.elvt_cnt.value()),  self.elvt_cnt.value())
+        # self.current_working_dict["floor_cnt"] = self.floor_cnt.value()
+        # self.current_working_dict["under_floors"] = self.under_floors.value()
 
     def advanced_settings_window(self):
         bifrost.Reporter.info("Starting advanced settings window")
         self.adv_window = AdvancedConfWindow(self.current_working_data.get_elevator_count())
         self.adv_window.exec_()
-        # TODO 高级配置窗口
+        # TODO 不提供高级配置窗口
         pass
 
     def refill_configs(self, cfg_dict: dict):  # 重填配置
@@ -473,18 +477,19 @@ class Ui_NewSimConf(object):
             self.elvt_capacity.setText(str(cfg_dict["capacity"]))  # 点击已配置的电梯实现重填入配置框
             self.elvt_priority.setText(str(cfg_dict["accepted_priority"]))
         # TODO 重填楼层设置
-        # TODO 实现自动禁用简单复选框
+        # TODO 不禁用简单复选框，不开放高级选择窗口
         pass
 
     def parse_floor_setting(self, floor_tuple: tuple):
         bifrost.Reporter.info("Simple floor setting re-parsing for filling of checkbox")
-        # TODO 解析已有配置实现重填楼层设置复选框
+        # TODO 不解析，添加标志位，在生成文件时填入楼层
         if floor_tuple is not None:
             pass
         pass
 
     def get_floor_setting(self):  # 获取楼层设置
         bifrost.Reporter.info("Floor setting checkbox parsing")
+
         def items(btmvalue: int, topvalue: int):
             bifrost.Reporter.info("Tool function called, "
                                   "generating items list ranging", btmvalue, topvalue)
@@ -492,7 +497,7 @@ class Ui_NewSimConf(object):
                 itemlist = []
             else:
                 itemlist = [1, ]
-            for i in range(int(btmvalue), int(topvalue+1)):
+            for i in range(int(btmvalue), int(topvalue + 1)):
                 itemlist.append(i)
             return itemlist  # 生成楼层列表
 
@@ -501,24 +506,24 @@ class Ui_NewSimConf(object):
         even = self.even_floors.isChecked()
         high = self.high_floors.isChecked()
         low = self.low_floors.isChecked()  # 取设置信息
-        #print(self.high_floors.checkState())
+        # print(self.high_floors.checkState())
         floors = self.current_working_data.dict_data["floor_cnt"]
-        #available_floors = items(1, floors)  # 生成完整楼层列表
+        # available_floors = items(1, floors)  # 生成完整楼层列表
 
         if not high and not low:
             available_floors = items(1, floors)  # 生成完整楼层列表
 
         elif floors % 2 != 0:  # 总层数为奇
             if high:  # 高楼层
-                available_floors = items(((floors+1)/2)+1, floors)
+                available_floors = items(((floors + 1) / 2) + 1, floors)
             elif low:  # 低楼层
-                available_floors = items(1, (floors+1)/2)
+                available_floors = items(1, (floors + 1) / 2)
 
         else:  # 总层数为偶
             if high:
-                available_floors = items((floors/2)+1, floors)
+                available_floors = items((floors / 2) + 1, floors)
             elif low:
-                available_floors = items(1, floors/2)
+                available_floors = items(1, floors / 2)
 
         if odd:  # 选择奇数项
             for floor in available_floors[1:]:
@@ -542,18 +547,17 @@ class Ui_NewSimConf(object):
         else:
             bifrost.Reporter.info("Processing progressbar increment")
             self.elevator_completion_status[self.clicked_item] = True  # 未配置过更改控制位
-            if 100-self.progressBar.value() < self.elevator_completion_status["Increment"]*2:
+            if 100 - self.progressBar.value() < self.elevator_completion_status["Increment"] * 2:
                 bifrost.Reporter.info("progressbar reached last block")
                 self.progressBar.setValue(100)  # 对于递增数小数被舍去的情况做处理
                 # 如果进行到最后一个递增块自动设定值为100%
             else:
                 self.progressBar.setValue(self.progressBar.value() + self.elevator_completion_status["Increment"])
         pass
-        
 
     @Slot()
     def change_conf_elvt(self, new_selected_elvt: QListWidgetItem):  # 更改正在配置的电梯对象
-        #self.clicked_item = item
+        # self.clicked_item = item
         bifrost.Reporter.info("New item", new_selected_elvt.text(),
                               "clicked, shifting current config elevator")
         prev_elvt = self.current_working_data.get_elevator_config(self.clicked_item)  # 上一次点击的电梯
@@ -567,14 +571,14 @@ class Ui_NewSimConf(object):
                                                           int(params[1]))
             self.progress_increment(self.clicked_item)  # 进度条递增
 
-        #self.clear_configs()
+        # self.clear_configs()
         self.clicked_item = int(new_selected_elvt.text())  # 保存本次配置对应的对象
         self.refill_configs(self.current_working_data.get_elevator_config(int(new_selected_elvt.text())))
         # 重新填入配置
-        #self.clicked_item = int(item.text())
+        # self.clicked_item = int(item.text())
 
     @Slot()
-    def done_steptwo(self):  #完成第二页，保存配置信息
+    def done_steptwo(self):  # 完成第二页，保存配置信息
         self.cfg_path_final.setText(self.current_working_data.generate_data_file())
         # 生成文件，展示路径
         self.cfg_name_final.setText(self.current_working_data.get_file_name())
@@ -582,16 +586,12 @@ class Ui_NewSimConf(object):
         pass
 
 
-
-
-
-
 class ConfigWizard(QWizard):
     def __init__(self, rate):
         super(ConfigWizard, self).__init__()
         self.ui = Ui_NewSimConf()
         self.ui.setupUi(self, rate)
-        #self.show()
+        # self.show()
 
 
 class AdvancedConfWindow(QDialog):

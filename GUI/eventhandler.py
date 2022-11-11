@@ -1,5 +1,6 @@
 """
 事件处理器
+暂不确定是否仍然使用
 """
 import multiprocessing
 import traceback
