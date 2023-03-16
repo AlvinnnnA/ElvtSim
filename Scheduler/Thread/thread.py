@@ -4,11 +4,15 @@ import multiprocessing
 from common_objects import Event
 from Log.Common import bifrost
 
+DEFAULT_CONF = {'event_enabled': True, 'verbose': True, 'state': 'static', 'speed': 're-start', 'initial_floor': 4,
+                'initial_dest': 1, 'min_floor': 1, 'max_floor': 4, "max_weight": 15, 'initial_time': "06:00:00"}
+
 
 class Elevator:
-    def __init__(self, min_floor, max_floor, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
-        self.__event_enabled = True  # 是否启用事件处理器报送
-        self.__verbose = False  # 是否启用啰嗦模式
+    def __init__(self, conf_dict=DEFAULT_CONF, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
+
+        self.__event_enabled = conf_dict['event_enabled']  # 是否启用事件处理器报送
+        self.__verbose = conf_dict['verbose']  # 是否启用啰嗦模式
         if not type(event_queue) == "multiprocessing.queues.Queue":  # 防止乱传参
             print("没有配置事件队列或配置错误，启用啰嗦模式输出")
             self.__event_enabled = False
@@ -20,14 +24,14 @@ class Elevator:
                                    "Elevator")
             self.event_queue.put(register_event)
         self.chime = bifrost.Chime
-        self.elevator_state = 'static'  # 电梯的当前状态，默认是静止状态
-        self.elevator_speed = 're-start'  # 电梯的速度状态
-        self.current_floor = 4  # 电梯当前所在楼层
-        self.destination_floor = 1  # 电梯的目标楼层
-        self.MIN_FLOOR = min_floor  # 电梯的最低停靠楼层
-        self.MAX_FLOOR = max_floor  # 电梯的最高停靠楼层
-        self.MAX_WEIGHT = 15  # 电梯的最高搭乘人数为15人
-        self.elevator_clock = convert_time.time_to_num("06:00:00")  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
+        self.elevator_state = conf_dict['state']  # 电梯的当前状态，默认是静止状态
+        self.elevator_speed = conf_dict['speed']  # 电梯的速度状态
+        self.current_floor = conf_dict['initial_floor']  # 电梯当前所在楼层
+        self.destination_floor = conf_dict['initial_dest']  # 电梯的目标楼层
+        self.MIN_FLOOR = conf_dict['min_floor']  # 电梯的最低停靠楼层
+        self.MAX_FLOOR = conf_dict['max_floor']  # 电梯的最高停靠楼层
+        self.MAX_WEIGHT = conf_dict['max_weight']  # 电梯的最高搭乘人数为15人
+        self.elevator_clock = convert_time.time_to_num(conf_dict['initial_time'])  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
         self.elevator_timestamp = []  # 乘客呼叫的时间戳，将乘客分配好之后，将乘客呼叫电梯的时间戳放入这里
         self.acceleration_switch = True  # 电梯进行时间加速的按钮，默认是打开状态
         self.waiting_list = []  # 此时正在等待的乘客的队列
@@ -41,7 +45,7 @@ class Elevator:
 
     def run_elevator(self):
         while self.waiting_list or self.elevator_list:
-            self.search_called()   # 每运行一层都检查一下命令队列，检查电梯的目的地
+            self.search_called()  # 每运行一层都检查一下命令队列，检查电梯的目的地
             if self.destination_floor == self.current_floor:  # 如果电梯停下，检查是否应该换向
                 self.open_door(self.destination_floor)
                 self.check_state()
@@ -94,9 +98,9 @@ class Elevator:
                         self.elevator_clock = self.elevator_clock + 1
                         self.call_elevator()
 
-    def search_called(self):    # 电梯调用函数寻找目的地
+    def search_called(self):  # 电梯调用函数寻找目的地
         if self.elevator_state == 'static':  # 电梯起始状态
-            min_floor = self.MAX_FLOOR    # 这里是如果电梯在同一时间接到乘客的呼叫，优先下行
+            min_floor = self.MAX_FLOOR  # 这里是如果电梯在同一时间接到乘客的呼叫，优先下行
             for passenger in self.elevator_list:  # 先遍历电梯队列，即使电梯是静止的，电梯队列也可能有人
                 destination = passenger.dest_floor
                 if min_floor > destination:
@@ -117,10 +121,10 @@ class Elevator:
                     elif self.destination_floor < self.current_floor:
                         self.elevator_state = 'down'
             self.elevator_speed = 're-start'  # 找到目的地之后，修改速度状态
-        if self.elevator_state == 'up':       # 同时检查等待乘客列表和电梯乘客列表，判断最快到达楼层
+        if self.elevator_state == 'up':  # 同时检查等待乘客列表和电梯乘客列表，判断最快到达楼层
             self.destination_floor = self.check_max()  # 检查目前能到的最高层，主要是当做一个比较的对象
             for passenger in self.waiting_list:
-                if passenger.dest_floor-passenger.src_floor > 0:     # 判断乘客按钮的方向
+                if passenger.dest_floor - passenger.src_floor > 0:  # 判断乘客按钮的方向
                     if passenger.src_floor > self.current_floor:  # 今日增加了一个重量判断，将这里的等于号删去了，逻辑上应该没什么问题
                         pre_destination_floor = passenger.src_floor
                         if self.destination_floor > pre_destination_floor:
@@ -170,7 +174,7 @@ class Elevator:
                 if min_floor == self.current_floor:
                     self.elevator_state = 'up'
 
-    def made_in_heaven(self):    # 神父要上天堂了，当电梯保持静止状态并且电梯预时间戳还有东西没有处理，就进行时间加速，每次加速一秒
+    def made_in_heaven(self):  # 神父要上天堂了，当电梯保持静止状态并且电梯预时间戳还有东西没有处理，就进行时间加速，每次加速一秒
         while self.elevator_timestamp and self.acceleration_switch is True:
             if self.elevator_state == 'static':
                 self.elevator_clock = self.elevator_clock + 1
@@ -223,13 +227,13 @@ class Elevator:
                 self.chime.info('电梯人员已到达上限')
                 break
 
-    def passenger_leave(self, destination_floor):   # 判断是否有乘客离开，如果有，就在elevator将其删除
+    def passenger_leave(self, destination_floor):  # 判断是否有乘客离开，如果有，就在elevator将其删除
         for passenger in self.elevator_list[:]:
             if passenger.dest_floor == destination_floor:
                 self.elevator_list.remove(passenger)
                 self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
                 self.chime.info("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time
-                                                                      (self.elevator_clock)) + "离开电梯")
+                                                                         (self.elevator_clock)) + "离开电梯")
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
         self.chime.info("门已开，请在10s内进入或者离开电梯")
@@ -256,7 +260,7 @@ class Passenger:
         elevator_num.elevator_list.append(self)
 
     @classmethod  # 随机生成乘客的函数
-    def random_passenger(cls, number: int, highest: int):
+    def random_passenger(cls, number: int, highest: int,):
         born_passenger_list = []
         for i in range(number):
             start = random.randint(1, highest)
@@ -264,11 +268,14 @@ class Passenger:
             while start == end:
                 end = random.randint(1, highest)
             born_passenger_list.append(Passenger(str(i), start,
-                                                 end, convert_time.num_to_time(random.randint(1640966400, 1641052799))))
+                                                 end, convert_time.num_to_time(
+                    random.randint(convert_time.time_to_num('06:00:00'), convert_time.time_to_num('22:00:00')))))
         return born_passenger_list
 
 
 if __name__ == '__main__':
-    elevator_one = Elevator(1, 6)
+    test_conf = {'event_enabled': True, 'verbose': True, 'state': 'static', 'speed': 're-start', 'initial_floor': 4,
+                 'initial_dest': 1, 'min_floor': 1, 'max_floor': 6, "max_weight": 15, 'initial_time': "06:00:00"}
+    elevator_one = Elevator(test_conf)
     passenger_list = Passenger.random_passenger(1000, 6)
     elevator_one.start_elevator()

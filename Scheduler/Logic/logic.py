@@ -2,6 +2,7 @@ from Scheduler.Thread.thread import Passenger
 import my_parser
 import json
 
+# TODO This needs total rework
 
 def choice_allocation(elevator_number, choice_dictionary):  # 可选择性的多梯分配，传入电梯数量以及解析字典
     if elevator_number == 2:
