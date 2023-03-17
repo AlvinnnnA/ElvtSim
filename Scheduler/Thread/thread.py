@@ -258,6 +258,8 @@ class Passenger:
         self.state = 'Waiting'  # 乘客的等待状态
         self.call_time = convert_time.time_to_num(call_time)  # 乘客储存是时间戳
         self.into_elevator = None  # 乘客要进入的电梯
+        self.peak_hours = None  # 乘客的高峰时间
+        self.occurrence_time = None  # 乘客的发生时间
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)
@@ -266,7 +268,7 @@ class Passenger:
         elevator_num.elevator_list.append(self)
 
     @classmethod  # 随机生成乘客的函数
-    def random_passenger(cls, number: int, highest: int, ):
+    def random_passenger(cls, number: int, highest: int, start_time, end_time):
         born_passenger_list = []
         for i in range(number):
             start = random.randint(1, highest)
@@ -275,7 +277,7 @@ class Passenger:
                 end = random.randint(1, highest)
             born_passenger_list.append(Passenger(str(i), start,
                                                  end, convert_time.num_to_time(
-                    random.randint(convert_time.time_to_num('06:00:00'), convert_time.time_to_num('22:00:00')))))
+                    random.randint(convert_time.time_to_num(start_time), convert_time.time_to_num(end_time)))))
         return born_passenger_list
 
 
