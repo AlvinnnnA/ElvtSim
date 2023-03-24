@@ -36,10 +36,16 @@ def elevator_parser(elevator_num, elevator_json):  # 传入一个电梯配置文
         return elevator_dictionary, elevator_choice_dictionary
 '''
 
-def elevator_parser(elevator_json):  # 传入一个电梯配置文件的json
+def elevator_parser(elevator_json) -> dict:  # 传入一个电梯配置文件的json
     # TODO json config parsing
     elevator_parse_dict = json.loads(elevator_json)  # 生成字典文件
     #for elevator in elevator_parse_dict[]:
+
+    return elevator_parse_dict
+
+def auto_operator(conf_dict: dict):
+    # TODO choose appropriate config for the given elevator configuration
+    pass
 
 
 def allocate_floors(floors, elevator_count):
