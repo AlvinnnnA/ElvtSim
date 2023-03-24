@@ -11,14 +11,29 @@ elevator_parse_dict ={'elevator_one': elevator_one_arrangement, 'elevator_two': 
 elevator_json = json.dumps(elevator_parse_dict, indent=4, ensure_ascii=False)  # 将配置信息文件转化为json （试验用）
 
 
-def elevator_parser(elevator_json):  # 传入一个电梯配置文件的json
-    elevator_parse_dict = json.loads(elevator_json)  # 生成字典文件
-    elevator_one_choice = elevator_parse_dict['elevator_one']['elevator_choice']
-    elevator_two_choice = elevator_parse_dict['elevator_two']['elevator_choice']
-    elevator_choice_dictionary = {'elevator_one': elevator_one_choice, 'elevator_two': elevator_two_choice}  # 电梯选择字典
-    elevator_one = Elevator(elevator_parse_dict['elevator_one']['min_floor'], elevator_parse_dict['elevator_one']['max_floor'])  #一号电梯楼层
-    elevator_two = Elevator(elevator_parse_dict['elevator_two']['min_floor'], elevator_parse_dict['elevator_two']['max_floor'])
-    return elevator_one, elevator_two, elevator_choice_dictionary
+def elevator_parser(elevator_num, elevator_json):  # 传入一个电梯配置文件的json
+    if elevator_num <= 1 or elevator_num > 10:
+        print("配置信息有误，请重新输入")
+    else:
+        elevator_parse_dict = json.loads(elevator_json)  # 生成字典文件
+        elevator_choice_dictionary = {}  # 电梯选择楼层的字典
+        elevator_dictionary = {}  # 电梯剩余基本信息的字典
+        for i in range(1, elevator_num+1):
+            if i == 1:n = "one"
+            elif i == 2: n = "two"
+            elif i == 3:n = "three"
+            elif i == 4:n = "four"
+            elif i == 5: n = "five"
+            elif i == 6:n = "six"
+            elif i == 7: n = "seven"
+            elif i == 8:n = "eight"
+            elif i == 9: n = "nine"
+            elif i == 10:n = "ten"
+            globals()['elevator_' + n + '_choice'] = elevator_parse_dict['elevator_' + n]['elevator_choice']  # 解析出所有电梯选择的楼层
+            elevator_choice_dictionary.update({'elevator_' + n: eval('elevator_' + n + '_choice')})  # 电梯选择楼层的字典
+            globals()['elevator_' + n] = Elevator(elevator_parse_dict['elevator_' + n]['min_floor'], elevator_parse_dict['elevator_' + n]['max_floor'])
+            elevator_dictionary.update({'elevator_' + n: eval('elevator_' + n)})
+        return elevator_dictionary, elevator_choice_dictionary
 '''
 
 def elevator_parser(elevator_json):  # 传入一个电梯配置文件的json
