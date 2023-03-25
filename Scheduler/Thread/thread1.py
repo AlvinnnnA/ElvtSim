@@ -39,7 +39,7 @@ def choose_up(passenger):  # 选择上行电梯
             gap[elevator] = abs(passenger.src_floor - elevator.current_floor)  # 计算电梯与乘客的楼层差
         if elevator.elevator_state == "up" and elevator.current_floor > passenger.src_floor:
             gap[elevator] = 2 * (elevator.MAX_FLOOR - elevator.MIN_FLOOR) - (abs(
-                    elevator.current_floor - passenger.src_floor))  # 计算电梯与乘客的楼层差
+                elevator.current_floor - passenger.src_floor))  # 计算电梯与乘客的楼层差
         if elevator.elevator_state == "static":
             gap[elevator] = abs(passenger.src_floor - elevator.current_floor)  # 计算电梯与乘客的楼层差
         if elevator.elevator_state == "down":
@@ -56,11 +56,11 @@ def choose_down(passenger):  # 选择下行电梯
             gap[elevator] = abs(passenger.src_floor - elevator.current_floor)  # 计算电梯与乘客的楼层差
         if elevator.elevator_state == "down" and elevator.current_floor < passenger.src_floor:
             gap[elevator] = 2 * (elevator.MAX_FLOOR - elevator.MIN_FLOOR) - (abs(
-                    elevator.current_floor - passenger.src_floor))  # 计算电梯与乘客的楼层差
+                elevator.current_floor - passenger.src_floor))  # 计算电梯与乘客的楼层差
         if elevator.elevator_state == "static":
             gap[elevator] = abs(passenger.src_floor - elevator.current_floor)  # 计算电梯与乘客的楼层差
         if elevator.elevator_state == "up":
-            gap[elevator] = 2*elevator.MAX_FLOOR-elevator.current_floor-passenger.src_floor  # 计算电梯与乘客的楼层差
+            gap[elevator] = 2 * elevator.MAX_FLOOR - elevator.current_floor - passenger.src_floor  # 计算电梯与乘客的楼层差
     min_elevator = min(gap, key=gap.get)  # 找出最小的楼层差
     passenger.into_elevator = min_elevator
     min_elevator.waiting_list.append(passenger)
@@ -119,7 +119,7 @@ class Elevator:
                 continue
             if self.elevator_state == 'up':  # 判断电梯运行状态
                 self.current_floor = self.current_floor + 1
-                self.chime.info('电梯已到达' + str(self.current_floor) + '层')
+                self.chime.info(self.elevator_clock, '电梯已到达' + str(self.current_floor) + '层')
                 if self.elevator_speed == 're-start':
                     if self.destination_floor == self.current_floor:  # 如果起始层和最终层只差一层,调成15s
                         for second in range(15):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层15秒
@@ -297,15 +297,16 @@ class Elevator:
                     passenger.on_selected(passenger.into_elevator)
                     self.waiting_list.remove(passenger)
                     if passenger.dest_floor not in self.available_floors:
-                        self.chime.warning("Incorrect Floor parameter entered for passenger", passenger.uid, "Entered",
-                                           passenger.dest_floor, "Minimum floor for elevator is", self.MIN_FLOOR)
+                        pass
+                        # self.chime.warning("Incorrect Floor parameter entered for passenger", passenger.uid,
+                        # "Entered", passenger.dest_floor, "Minimum floor for elevator is", self.MIN_FLOOR)
                     else:
                         if passenger.call_time in self.elevator_timestamp:
                             self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                            self.chime.info("乘客" + str(passenger.uid) + "于" +
+                            self.chime.info(self.elevator_clock, "乘客" + str(passenger.uid) + "于" +
                                             str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
             elif len(self.elevator_list) == self.MAX_WEIGHT:
-                self.chime.info('电梯人员已到达上限')
+                self.chime.info(self.elevator_clock, '电梯人员已到达上限')
                 break
 
     def passenger_leave(self, destination_floor):  # 判断是否有乘客离开，如果有，就在elevator将其删除
@@ -314,11 +315,11 @@ class Elevator:
                 self.elevator_list.remove(passenger)
                 if passenger in self.total_list:
                     self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
-                self.chime.info("乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time
-                                                                      (self.elevator_clock)) + "离开电梯")
+                self.chime.info(self.elevator_clock, "乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time
+                                                                                           (self.elevator_clock)) + "离开电梯")
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
-        self.chime.info("门已开，在10s内乘客离开")
+        self.chime.info(self.elevator_clock, "门已开，在10s内乘客离开")
         self.passenger_leave(destination_floor)
         self.passenger_into(destination_floor)
         for second in range(10):  # 同电梯运行时的时间判断
@@ -337,24 +338,8 @@ class Passenger:
         self.maybe_into_elevator = None  # 乘客可能进入的电梯
         self.peak_hours = None  # 乘客的高峰时间
 
-    @classmethod  # 随机生成乘客的函数
-    def random_passenger(cls, number: int, highest: int, start_time, end_time):
-        born_passenger_list = []
-        for i in range(number):
-            start = random.randint(1, highest)
-            end = random.randint(1, highest)
-            while start == end:
-                end = random.randint(1, highest)
-            born_passenger_list.append(Passenger(str(i),
-                                                 start,
-                                                 end,
-                                                 convert_time.num_to_time(
-                                                     random.randint(convert_time.time_to_num(start_time),
-                                                                    convert_time.time_to_num(end_time)))))
-        return born_passenger_list
-
     def __repr__(self):
-        return f"User {self.uid}, {convert_time.num_to_time(self.call_time)}, src {self.src_floor}, dest {self.dest_floor}"
+        return f"User {self.uid}, {convert_time.num_to_time(self.call_time)}, src {self.src_floor}, dest {self.dest_floor} "
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)
@@ -365,18 +350,18 @@ class Passenger:
     def to_list(self):
         return [self.uid, self.src_floor, self.dest_floor, convert_time.num_to_time(self.call_time), self.call_time]
 
-    # @class_method  # 随机生成乘客的函数
-    # def random_passenger(cls, number: int, highest: int, start_time, end_time):
-    #     born_passenger_list = []
-    #     for i in range(number):
-    #         start = random.randint(1, highest)
-    #         end = random.randint(1, highest)
-    #         while start == end:
-    #             end = random.randint(1, highest)
-    #         born_passenger_list.append(Passenger(str(i), start,
-    #                                              end, convert_time.num_to_time(
-    #                 random.randint(convert_time.time_to_num(start_time), convert_time.time_to_num(end_time)))))
-    #     return born_passenger_list
+    @classmethod  # 随机生成乘客的函数
+    def random_passenger(cls, number: int, highest: int, start_time, end_time):
+        born_passenger_list = []
+        for i in range(number):
+            start = random.randint(1, highest)
+            end = random.randint(1, highest)
+            while start == end:
+                end = random.randint(1, highest)
+            born_passenger_list.append(Passenger(str(i), start,
+                                                 end, convert_time.num_to_time(
+                    random.randint(convert_time.time_to_num(start_time), convert_time.time_to_num(end_time)))))
+        return born_passenger_list
 
 
 class GlobalClock:
