@@ -1,6 +1,7 @@
 {
   "event_enabled": true,
   "verbose": true,
+  "elevator_count": 2,
   "elevators":
   {
     "1":{"event_enabled": true, "verbose": true, "state": "static",

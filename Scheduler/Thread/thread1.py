@@ -354,7 +354,7 @@ class Passenger:
         return born_passenger_list
 
     def __repr__(self):
-        return f"User({self.uid}, {self.call_time})"
+        return f"User {self.uid}, {convert_time.num_to_time(self.call_time)}, src {self.src_floor}, dest {self.dest_floor}"
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)

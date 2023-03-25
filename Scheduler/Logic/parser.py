@@ -1,5 +1,6 @@
 import csv
 import os
+from pprint import pprint
 
 from Scheduler.Thread.thread1 import Elevator, Passenger
 import json
@@ -58,10 +59,67 @@ def passenger_getter(passenger_csv) -> list:
     return passenger_list
 
 
-def auto_operator(conf_dict: dict, passenger_queue: list):
-    # TODO choose appropriate config for the given elevator configuration
-    pass
 
+def auto_operator(config, passenger_queue):
+    def is_passenger_served(elevator, passenger):
+        return passenger.src_floor in elevator and passenger.dest_floor in elevator
+
+    def find_overlap_groups(config):
+        overlaps = {}
+        elevator_keys = sorted(config.keys())
+        for n in range(2, len(elevator_keys) + 1):
+            for elevator_group in combinations(elevator_keys, n):
+                overlap_floors = set.intersection(*[set(config[elevator]) for elevator in elevator_group])
+                if overlap_floors:
+                    overlap_key = "_".join(sorted(elevator_group))
+                    overlaps[overlap_key] = list(overlap_floors)
+        return overlaps
+
+    overlaps = find_overlap_groups(config)
+
+    result = {"elevators": [], "unserved": []}
+
+    for passenger in passenger_queue:
+        served = False
+
+        for overlap_key, overlap_floors in overlaps.items():
+            if is_passenger_served(overlap_floors, passenger):
+                served = True
+                overlap_key_list = overlap_key.split("_")
+
+                for elevator_dict in result["elevators"]:
+                    if elevator_dict["group"] == overlap_key_list:
+                        elevator_dict["queue"].append(passenger)
+                        break
+                else:
+                    result["elevators"].append({
+                        "group": overlap_key_list,
+                        "overlap_floors": overlap_floors,
+                        "queue": [passenger]
+                    })
+                break
+
+        if not served:
+            for elevator, floors in config.items():
+                if is_passenger_served(floors, passenger):
+                    served = True
+
+                    for elevator_dict in result["elevators"]:
+                        if elevator_dict["group"] == [elevator]:
+                            elevator_dict["queue"].append(passenger)
+                            break
+                    else:
+                        result["elevators"].append({
+                            "group": [elevator],
+                            "overlap_floors": floors,
+                            "queue": [passenger]
+                        })
+                    break
+
+        if not served:
+            result["unserved"].append(passenger)
+
+    return result
 
 def generate_floors(floors, elevator_count):
     # TODO reduce the allocation to only sensible ones(or do some baseline cases allocation)
@@ -90,7 +148,37 @@ def generate_floors(floors, elevator_count):
 
     return result
 
-
+def combine_all_and_output(config,passenger):
+    # TODO combine all the functions and output the result
+    if isinstance(passenger,list):
+        passenger_queue = passenger
+    elif isinstance(passenger,str):
+        passenger_queue = passenger_getter(passenger)
+    else:
+        try:
+            passenger_queue = passenger_getter(passenger)
+        except:
+            raise ValueError("Passenger must be a list or a str to csv")
+    if isinstance(config, str):
+        config_dict = elevator_reader(config)
+        # TODO dict processing to extract and finally construting usable form
+        auto_operator(config_dict, passenger_queue)
+    elif isinstance(config, dict):
+        auto_operator(config, passenger_queue)
+    else:
+        try:
+            config_dict = elevator_reader(config)
+            auto_operator(config_dict, passenger_queue)
+        except:
+            raise ValueError("Config must be a dict or a str to json")
+    pass
 
 if __name__ == '__main__':
-    print(os.path.join(os.path.abspath(os.path.curdir),'test.csv'))
+    config = {
+        'low': [1, 2, 3, 4, 5],
+        'odd': [1, 3, 5, 7, 9],
+        'high': [1, 6, 7, 8, 9],
+        'even': [1, 2, 4, 6, 8],
+    }
+    passenger_queue = Passenger.random_passenger(100, 9, "08:00:00", "20:00:00")
+    pprint(auto_operator(config, passenger_queue))
