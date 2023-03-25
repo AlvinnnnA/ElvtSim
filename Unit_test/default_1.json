@@ -3,27 +3,13 @@
   "verbose": true,
   "elevators":
   {
-    "1":{
-    "state": "static",
-    "speed": "re-start",
-    "initial_floor": 4,
-    "initial_dest": 1,
-    "min_floor": 1,
-    "max_floor": 4,
-    "max_weight": 15,
-    "initial_time": "06:00:00",
-    "floor_list": [1, 2, 3, 4]
-    },
+    "1":{"event_enabled": true, "verbose": true, "state": "static",
+                   "speed": "re-start", "initial_floor": 4,
+                   "initial_dest": 1, "min_floor": 1, "max_floor": 6, "max_weight": 15, "initial_time": "00:00:00",
+                   "floor_list": [1, 2, 3, 4]},
     "2":
-  {
-    "state": "static",
-    "speed": "re-start",
-    "initial_floor": 1,
-    "initial_dest": 4,
-    "min_floor": 1,
-    "max_floor": 4,
-    "max_weight": 15,
-    "initial_time": "06:00:00",
-    "floor_list": [1, 2, 3, 4]
-  }}
+  {"event_enabled": true, "verbose": true, "state": "static",
+                   "speed": "re-start", "initial_floor": 4,
+                   "initial_dest": 1, "min_floor": 1, "max_floor": 6, "max_weight": 15, "initial_time": "00:00:00",
+                   "floor_list": [1, 2, 3, 4]}}
 }
