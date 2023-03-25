@@ -1,5 +1,5 @@
 from Scheduler.Thread.thread import Passenger
-import my_parser
+import parser
 import json
 
 
