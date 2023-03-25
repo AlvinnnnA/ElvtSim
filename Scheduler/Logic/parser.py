@@ -1,4 +1,7 @@
-from Scheduler.Thread.thread1 import Elevator
+import csv
+import os
+
+from Scheduler.Thread.thread1 import Elevator, Passenger
 import json
 from itertools import combinations
 
@@ -44,9 +47,15 @@ def elevator_reader(elevator_json) -> dict:  # 传入一个电梯配置文件的
     # for elevator in elevator_parse_dict[]:
     return elevator_parse_dict
 
+
 def passenger_getter(passenger_csv) -> list:
-    # TODO csv config parsing
-    pass
+    passenger_list = []
+    with open(passenger_csv) as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # row is a dictionary mapping column names to values
+            passenger_list.append(Passenger(row['uid'], row['src_floor'], row['dest_floor'], row['occurrence_time']))
+    return passenger_list
 
 
 def auto_operator(conf_dict: dict, passenger_queue: list):
@@ -82,9 +91,6 @@ def generate_floors(floors, elevator_count):
     return result
 
 
-def passenger_parser():
-    pass
 
-
-if __name__ == "__main__":
-    print(len(allocate_floors(range(1, 7), 2)))
+if __name__ == '__main__':
+    print(os.path.join(os.path.abspath(os.path.curdir),'test.csv'))

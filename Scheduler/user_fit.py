@@ -1,32 +1,8 @@
-from datetime import datetime, timedelta
-import random
 import numpy as np
 from scipy.stats import norm
-from pandas import DataFrame
-from Scheduler.Thread.thread1 import Passenger
 from Scheduler.Thread.convert_time import *
 import matplotlib.pyplot as plt
 
-
-class User(Passenger):
-    @classmethod  # 随机生成乘客的函数
-    def random_passenger(cls, number: int, highest: int, start_time, end_time):
-        born_passenger_list = []
-        for i in range(number):
-            start = random.randint(1, highest)
-            end = random.randint(1, highest)
-            while start == end:
-                end = random.randint(1, highest)
-            born_passenger_list.append(User(str(i), start,
-                                            end, num_to_time(
-                    random.randint(time_to_num(start_time), time_to_num(end_time)))))
-        return born_passenger_list
-
-    def __repr__(self):
-        return f"User({self.uid}, {self.occurrence_time})"
-
-    def to_list(self):
-        return [self.uid, self.src_floor, self.dest_floor, self.occurrence_time, time_to_num(self.occurrence_time)]
 
 # TODO generation works but centering is wrong
 def fit_users_to_curve(users, peak_hours, start_time, end_time):
@@ -61,12 +37,11 @@ def fit_users_to_curve(users, peak_hours, start_time, end_time):
         timestamps = [num_to_time(start + b) for b in bins]
         # Assign timestamps to users
         for user, timestamp in zip(users, timestamps):
-            user.occurrence_time = timestamp
-            user.occurrence_time_seconds = time_to_num(timestamp) - start
+            user.call_time = time_to_num(timestamp)
 
 
 def plot_user_occurrence(users):
-    timestamps = [time_to_num(user.occurrence_time) for user in users]
+    timestamps = [user.call_time for user in users]
     bins = np.linspace(0, 24 * 3600, 240)  # 240 bins for 1/10 hour intervals
     density, _ = np.histogram(timestamps, bins=bins, density=False)
     plt.plot(bins[:-1], density)
@@ -74,7 +49,7 @@ def plot_user_occurrence(users):
     plt.ylabel('User occurrence density')
     plt.show()
 
-
+'''
 users = User.random_passenger(1000, 6, '08:00:00', '22:00:00')
 fit_users_to_curve(users, ['09:00:00', '12:00:00', '18:00:00'], '08:00:00', '22:00:00')
 user_list = []
@@ -82,3 +57,4 @@ for user in users:
     print(user)
     user_list.append(user.to_list())
 DataFrame(user_list).to_csv('user.csv', index=False, header=False)
+'''

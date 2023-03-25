@@ -16,7 +16,7 @@ class TestConfig(unittest.TestCase):
                               'initial_floor': 4,
                               'initial_dest': 1, 'min_floor': 1, 'max_floor': 4, "max_weight": 15,
                               'initial_time': "06:00:00",
-                              'floor_list': [1, 2, 3, 4]}, "Success Reading Config File")
+                              'floor_list': [1, 2, 3, 4]}, "Failed Reading Config File")
 
     def test_write(self):
         pass

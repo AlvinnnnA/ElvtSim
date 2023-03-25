@@ -1,3 +1,4 @@
+import random
 from Scheduler.Thread import convert_time
 import multiprocessing
 from common_objects import Event
@@ -335,13 +336,34 @@ class Passenger:
         self.into_elevator = None  # 乘客要进入的电梯
         self.maybe_into_elevator = None  # 乘客可能进入的电梯
         self.peak_hours = None  # 乘客的高峰时间
-        self.occurrence_time = None  # 乘客的发生时间
+
+    @classmethod  # 随机生成乘客的函数
+    def random_passenger(cls, number: int, highest: int, start_time, end_time):
+        born_passenger_list = []
+        for i in range(number):
+            start = random.randint(1, highest)
+            end = random.randint(1, highest)
+            while start == end:
+                end = random.randint(1, highest)
+            born_passenger_list.append(Passenger(str(i),
+                                                 start,
+                                                 end,
+                                                 convert_time.num_to_time(
+                                                     random.randint(convert_time.time_to_num(start_time),
+                                                                    convert_time.time_to_num(end_time)))))
+        return born_passenger_list
+
+    def __repr__(self):
+        return f"User({self.uid}, {self.call_time})"
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)
 
     def on_selected(self, elevator_num):
         elevator_num.elevator_list.append(self)
+
+    def to_list(self):
+        return [self.uid, self.src_floor, self.dest_floor, convert_time.num_to_time(self.call_time), self.call_time]
 
     # @class_method  # 随机生成乘客的函数
     # def random_passenger(cls, number: int, highest: int, start_time, end_time):
