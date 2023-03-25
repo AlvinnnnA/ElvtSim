@@ -1,9 +1,6 @@
 import csv
-import os
-from pprint import pprint
-from Scheduler.Logic import config_manager
-from Scheduler import user_fit
-from Scheduler.Thread.thread1 import Elevator, Passenger
+from Scheduler.Logic import config_manager, user_fit
+from Scheduler.Thread.thread1 import Passenger
 import json
 from itertools import combinations
 
@@ -120,7 +117,6 @@ def auto_operator(config, passenger_queue, to_json=False):
 
 
 def generate_floors(floors, elevator_count):
-    # TODO reduce the allocation to only sensible ones(or do some baseline cases allocation)
     # generate all possible floor combinations for a single elevator
     elevator_floors = []
     for i in range(1, len(floors) + 1):

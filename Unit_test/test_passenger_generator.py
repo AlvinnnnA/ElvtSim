@@ -1,6 +1,6 @@
 import os
 from random import randint
-import Scheduler.user_fit as usergen
+import Scheduler.Logic.user_fit as usergen
 import Scheduler.Logic.parser as parser
 import Scheduler.Thread.thread1 as thread
 import unittest

@@ -1,13 +1,3 @@
-from pprint import pprint
-
-import Scheduler.Thread.thread1 as thread
-import Scheduler.Logic.parser as parser
-
-# TODO This needs total rework to first build generate elevator objects then initiating dispatcher
-
-import itertools
-
-
 def generate_elevator_configs(building_info, strategy='segmented'):
     floor_count = building_info['floor_count']
     elevator_count = building_info['elevator_count']
