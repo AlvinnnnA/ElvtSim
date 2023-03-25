@@ -2,6 +2,7 @@ import csv
 import os
 from pprint import pprint
 
+from Scheduler import user_fit
 from Scheduler.Thread.thread1 import Elevator, Passenger
 import json
 from itertools import combinations
@@ -24,7 +25,7 @@ def passenger_getter(passenger_csv) -> list:
     return passenger_list
 
 
-def auto_operator(config, passenger_queue):
+def auto_operator(config, passenger_queue, to_json = False):
     def is_passenger_served(elevator, passenger):
         return passenger.src_floor in elevator and passenger.dest_floor in elevator
 
@@ -53,14 +54,24 @@ def auto_operator(config, passenger_queue):
 
                 for elevator_dict in result["elevators"]:
                     if elevator_dict["group"] == overlap_key_list:
-                        elevator_dict["queue"].append(passenger)
+                        if to_json:
+                            elevator_dict["queue"].append(passenger.to_list())
+                        else:
+                            elevator_dict["queue"].append(passenger)
                         break
                 else:
-                    result["elevators"].append({
-                        "group": overlap_key_list,
-                        "overlap_floors": overlap_floors,
-                        "queue": [passenger]
-                    })
+                    if to_json:
+                        result["elevators"].append({
+                            "group": overlap_key_list,
+                            "overlap_floors": overlap_floors,
+                            "queue": [passenger.to_list()]
+                        })
+                    else:
+                        result["elevators"].append({
+                            "group": overlap_key_list,
+                            "overlap_floors": overlap_floors,
+                            "queue": [passenger]
+                        })
                 break
 
         if not served:
@@ -70,18 +81,31 @@ def auto_operator(config, passenger_queue):
 
                     for elevator_dict in result["elevators"]:
                         if elevator_dict["group"] == [elevator]:
-                            elevator_dict["queue"].append(passenger)
+                            if to_json:
+                                elevator_dict["queue"].append(passenger.to_list())
+                            else:
+                                elevator_dict["queue"].append(passenger)
                             break
                     else:
-                        result["elevators"].append({
-                            "group": [elevator],
-                            "overlap_floors": floors,
-                            "queue": [passenger]
-                        })
+                        if to_json:
+                            result["elevators"].append({
+                                "group": [elevator],
+                                "overlap_floors": floors,
+                                "queue": [passenger.to_list()]
+                            })
+                        else:
+                            result["elevators"].append({
+                                "group": [elevator],
+                                "overlap_floors": floors,
+                                "queue": [passenger]
+                            })
                     break
 
         if not served:
-            result["unserved"].append(passenger)
+            if to_json:
+                result["unserved"].append(passenger.to_list())
+            else:
+                result["unserved"].append(passenger)
 
     return result
 
@@ -139,6 +163,20 @@ def combine_all_and_output(config, passenger):
             raise ValueError("Config must be a dict or a str to json")
     pass
 
+def get_thread_config_test(passenger_count):
+    config = {
+        'elevator1': [1, 2, 3, 4, 5],
+        'elevator2': [1, 3, 5, 7, 9],
+        'elevator3': [1, 6, 7, 8, 9],
+        'elevator4': [1, 2, 4, 6, 8],
+    }
+    passenger_queue = Passenger.random_passenger(passenger_count, 9, "08:00:00", "20:00:00")
+    user_fit.fit_users_to_curve(passenger_queue, ['09:00:00', '12:00:00', '18:00:00'], '08:00:00', '22:00:00')
+    # user_fit.plot_user_occurrence(passenger_queue)
+    final = {"config": config}
+    final["result"] = auto_operator(config, passenger_queue)
+    return final
+
 
 if __name__ == '__main__':
     config = {
@@ -148,4 +186,9 @@ if __name__ == '__main__':
         'even': [1, 2, 4, 6, 8],
     }
     passenger_queue = Passenger.random_passenger(100, 9, "08:00:00", "20:00:00")
-    pprint(auto_operator(config, passenger_queue))
+    user_fit.fit_users_to_curve(passenger_queue, ['09:00:00', '12:00:00', '18:00:00'], '08:00:00', '22:00:00')
+    # user_fit.plot_user_occurrence(passenger_queue)
+    # pprint(auto_operator(config, passenger_queue))
+    final = {"config": config}
+    final["result"] = auto_operator(config, passenger_queue)
+    pprint(final)
