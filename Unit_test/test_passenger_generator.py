@@ -9,7 +9,7 @@ from pandas import DataFrame
 
 class TestUsergen(unittest.TestCase):
     def setUp(self):
-        self.users = thread.Passenger.random_passenger(1000, 6, '08:00:00', '22:00:00')
+        self.users = thread.Passenger.random_passenger(1000, 9, '08:00:00', '22:00:00')
         usergen.fit_users_to_curve(self.users, ['09:00:00', '12:00:00', '18:00:00'], '08:00:00', '22:00:00')
         user_list = []
         for user in self.users:
@@ -17,8 +17,9 @@ class TestUsergen(unittest.TestCase):
         self.df = DataFrame(user_list,
                             columns=['uid', 'src_floor', 'dest_floor', 'occurrence_time', 'occurrence_time_seconds'])
         usergen.plot_user_occurrence(self.users)
-        self.df.to_csv('test.csv', index=False)
-        self.passenger_list = parser.passenger_getter(os.path.join(os.path.abspath(os.path.curdir), 'test.csv'))
+        self.df.to_csv('user.csv', index=False)
+        self.passenger_list = parser.passenger_getter(os.path.join(os.path.abspath(os.path.curdir),
+                                                                   '../Scheduler/Logic/user.csv'))
 
     def test_csv_data(self):
         for i in range(0, 5):
@@ -53,4 +54,5 @@ class TestUsergen(unittest.TestCase):
                                     object read{self.users[random_instance].to_list()}")
 
     def tearDown(self) -> None:
-        os.remove('test.csv')
+        # os.remove('user.csv')
+        pass

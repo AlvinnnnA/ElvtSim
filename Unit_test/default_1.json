@@ -4,11 +4,11 @@
   "elevator_count": 2,
   "elevators":
   {
-    "1":{"event_enabled": true, "verbose": true, "state": "static",
+    "elevator1":{"event_enabled": true, "verbose": true, "state": "static",
                    "speed": "re-start", "initial_floor": 4,
                    "initial_dest": 1, "min_floor": 1, "max_floor": 6, "max_weight": 15, "initial_time": "00:00:00",
                    "floor_list": [1, 2, 3, 4]},
-    "2":
+    "elevator2":
   {"event_enabled": true, "verbose": true, "state": "static",
                    "speed": "re-start", "initial_floor": 4,
                    "initial_dest": 1, "min_floor": 1, "max_floor": 6, "max_weight": 15, "initial_time": "00:00:00",

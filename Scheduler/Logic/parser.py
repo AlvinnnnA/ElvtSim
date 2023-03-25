@@ -12,8 +12,13 @@ def elevator_reader(elevator_json) -> dict:  # 传入一个电梯配置文件的
     with open(elevator_json, 'r') as f:
         elevator_parse_dict = json.load(f)
     # for elevator in elevator_parse_dict[]:
-    return elevator_parse_dict
-
+    if elevator_parse_dict["mode"]=="config":
+        return elevator_parse_dict
+    elif elevator_parse_dict["mode"]=="scene":
+        # TODO config generator
+        pass
+    else:
+        raise ValueError("'mode' in config file must be 'config' or 'scene'")
 
 def passenger_getter(passenger_csv) -> list:
     passenger_list = []
@@ -21,7 +26,7 @@ def passenger_getter(passenger_csv) -> list:
         reader = csv.DictReader(f)
         for row in reader:
             # row is a dictionary mapping column names to values
-            passenger_list.append(Passenger(row['uid'], row['src_floor'], row['dest_floor'], row['occurrence_time']))
+            passenger_list.append(Passenger(int(row['uid']), int(row['src_floor']), int(row['dest_floor']), row['occurrence_time']))
     return passenger_list
 
 
@@ -45,6 +50,8 @@ def auto_operator(config, passenger_queue, to_json = False):
     result = {"elevators": [], "unserved": []}
 
     for passenger in passenger_queue:
+        if not isinstance(passenger.src_floor, int):
+            raise TypeError("src_floor must be an int")
         served = False
 
         for overlap_key, overlap_floors in overlaps.items():
@@ -140,28 +147,36 @@ def generate_floors(floors, elevator_count):
 
 def combine_all_and_output(config, passenger):
     # combine all the functions and output the result
-    if isinstance(passenger, list):
-        passenger_queue = passenger
-    elif isinstance(passenger, str):
-        passenger_queue = passenger_getter(passenger)
-    else:
-        try:
+    def get_passenger_info(passenger):
+        if isinstance(passenger, list):
+            passenger_queue = passenger
+        elif isinstance(passenger, str):
             passenger_queue = passenger_getter(passenger)
-        except:
-            raise ValueError("Passenger must be a list or a str to csv")
-    if isinstance(config, str):
-        config_dict = elevator_reader(config)
-        # TODO dict processing to extract and finally construting usable form
-        auto_operator(config_dict, passenger_queue)
-    elif isinstance(config, dict):
-        auto_operator(config, passenger_queue)
-    else:
-        try:
+        else:
+            try:
+                passenger_queue = passenger_getter(passenger)
+            except:
+                raise ValueError("Passenger must be a list or a str to csv")
+        return passenger_queue[:50]
+    def get_thread_config(config):
+        if isinstance(config, str):
             config_dict = elevator_reader(config)
-            auto_operator(config_dict, passenger_queue)
-        except:
-            raise ValueError("Config must be a dict or a str to json")
-    pass
+        elif isinstance(config, dict):
+            config_dict = config
+        else:
+            try:
+                config_dict = elevator_reader(config)
+                auto_operator(config_dict, passenger_queue)
+            except:
+                raise ValueError("Config must be a dict or a str to json")
+        return config_dict
+    passenger_queue = get_passenger_info(passenger)
+    config_dict = get_thread_config(config)
+    floor_dict = {}
+    for name,info in config_dict['elevators'].items():
+        floor_dict[name] = info['floor_list']
+    config_dict['results'] = auto_operator(floor_dict, passenger_queue)
+    return config_dict
 
 def get_thread_config_test(passenger_count):
     config = {
@@ -179,16 +194,4 @@ def get_thread_config_test(passenger_count):
 
 
 if __name__ == '__main__':
-    config = {
-        'low': [1, 2, 3, 4, 5],
-        'odd': [1, 3, 5, 7, 9],
-        'high': [1, 6, 7, 8, 9],
-        'even': [1, 2, 4, 6, 8],
-    }
-    passenger_queue = Passenger.random_passenger(100, 9, "08:00:00", "20:00:00")
-    user_fit.fit_users_to_curve(passenger_queue, ['09:00:00', '12:00:00', '18:00:00'], '08:00:00', '22:00:00')
-    # user_fit.plot_user_occurrence(passenger_queue)
-    # pprint(auto_operator(config, passenger_queue))
-    final = {"config": config}
-    final["result"] = auto_operator(config, passenger_queue)
-    pprint(final)
+    pprint(combine_all_and_output('config.json', 'user.csv'))
