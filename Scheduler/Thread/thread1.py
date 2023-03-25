@@ -83,7 +83,7 @@ class Elevator:
                                    multiprocessing.current_process().pid,
                                    "Elevator")
             self.event_queue.put(register_event)
-        self.chime = bifrost.Chime
+        self.chime = bifrost.Chime()
         self.elevator_state = conf_dict['state']  # 电梯的当前状态，默认是静止状态
         self.elevator_speed = conf_dict['speed']  # 电梯的速度状态
         self.current_floor = conf_dict['initial_floor']  # 电梯当前所在楼层
@@ -142,7 +142,7 @@ class Elevator:
                         self.call_elevator()
             if self.elevator_state == 'down':
                 self.current_floor = self.current_floor - 1
-                self.chime.info('电梯已到达' + str(self.current_floor) + '层')
+                self.chime.info(self.elevator_clock, '电梯已到达' + str(self.current_floor) + '层')
                 if self.elevator_speed == 're-start':
                     if self.destination_floor == self.current_floor:  # 如果起始层和最终层只差一层,调成15s
                         for second in range(15):  # 在运行的过程中，电梯的时钟进行逐秒的增加，同时去判断在这个时间点有没有乘客呼叫电梯，运行速度是一层五秒
