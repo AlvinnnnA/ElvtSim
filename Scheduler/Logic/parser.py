@@ -1,7 +1,7 @@
 import csv
 import os
 from pprint import pprint
-
+from Scheduler.Logic import config_manager
 from Scheduler import user_fit
 from Scheduler.Thread.thread1 import Elevator, Passenger
 import json
@@ -12,13 +12,14 @@ def elevator_reader(elevator_json) -> dict:  # 传入一个电梯配置文件的
     with open(elevator_json, 'r') as f:
         elevator_parse_dict = json.load(f)
     # for elevator in elevator_parse_dict[]:
-    if elevator_parse_dict["mode"]=="config":
+    if elevator_parse_dict["mode"] == "config":
         return elevator_parse_dict
-    elif elevator_parse_dict["mode"]=="scene":
-        # TODO config generator
-        pass
+    elif elevator_parse_dict["mode"] == "scene":
+        # TODO list as configs
+        return config_manager.generate_elevator_configs_from_scene(elevator_parse_dict)
     else:
         raise ValueError("'mode' in config file must be 'config' or 'scene'")
+
 
 def passenger_getter(passenger_csv) -> list:
     passenger_list = []
@@ -26,11 +27,12 @@ def passenger_getter(passenger_csv) -> list:
         reader = csv.DictReader(f)
         for row in reader:
             # row is a dictionary mapping column names to values
-            passenger_list.append(Passenger(int(row['uid']), int(row['src_floor']), int(row['dest_floor']), row['occurrence_time']))
+            passenger_list.append(
+                Passenger(int(row['uid']), int(row['src_floor']), int(row['dest_floor']), row['occurrence_time']))
     return passenger_list
 
 
-def auto_operator(config, passenger_queue, to_json = False):
+def auto_operator(config, passenger_queue, to_json=False):
     def is_passenger_served(elevator, passenger):
         return passenger.src_floor in elevator and passenger.dest_floor in elevator
 
@@ -158,9 +160,14 @@ def combine_all_and_output(config, passenger):
             except:
                 raise ValueError("Passenger must be a list or a str to csv")
         return passenger_queue[:50]
+
     def get_thread_config(config):
         if isinstance(config, str):
             config_dict = elevator_reader(config)
+            if isinstance(config_dict,list):
+                print("INFO: Scene mode. Config is a list of dicts.")
+                # TODO handle this
+                pass
         elif isinstance(config, dict):
             config_dict = config
         else:
@@ -168,15 +175,17 @@ def combine_all_and_output(config, passenger):
                 config_dict = elevator_reader(config)
                 auto_operator(config_dict, passenger_queue)
             except:
-                raise ValueError("Config must be a dict or a str to json")
+                raise ValueError("Config must be a dict or a path to json")
         return config_dict
+
     passenger_queue = get_passenger_info(passenger)
     config_dict = get_thread_config(config)
     floor_dict = {}
-    for name,info in config_dict['elevators'].items():
+    for name, info in config_dict['elevators'].items():
         floor_dict[name] = info['floor_list']
     config_dict['results'] = auto_operator(floor_dict, passenger_queue)
     return config_dict
+
 
 def get_thread_config_test(passenger_count):
     config = {
@@ -194,4 +203,4 @@ def get_thread_config_test(passenger_count):
 
 
 if __name__ == '__main__':
-    pprint(combine_all_and_output('config.json', 'user.csv'))
+    pass
