@@ -47,6 +47,7 @@ class Chime:
     def info(self, timestamp: int, info: str):
         formatted_timestamp = self._format_timestamp(timestamp)
         entry = ["INFO", formatted_timestamp, info]
+        print(f"{entry[0]} {entry[1]} {entry[2]}")
         self.logs.append(entry)
 
     def debug(self, timestamp: int, info: str):

@@ -23,7 +23,7 @@ def run_in_thread(thread_name):  # 限制函数只能在指定线程中运行
 
 
 @run_in_thread("thread1")
-def share_call_elevator():  # 共享队列的电梯呼叫
+def share_call_elevator(share_list):  # 共享队列的电梯呼叫
     for passenger in share_list:
         if passenger.call_time == global_clock.value:  # 如果乘客的呼叫时间等于电梯的当前时间
             if passenger.src_floor < passenger.dest_floor:  # 上行
@@ -67,7 +67,7 @@ def choose_down(passenger):  # 选择下行电梯
 
 
 class Elevator:
-    def __init__(self, conf_dict=None, event_queue=None):  # 创建一个电梯类，并且赋予电梯相应的属性
+    def __init__(self, conf_dict=None, event_queue=None, shared = False):  # 创建一个电梯类，并且赋予电梯相应的属性
 
         if conf_dict is None:
             conf_dict = DEFAULT_CONF
@@ -100,9 +100,13 @@ class Elevator:
         self.waiting_list = []  # 此时正在等待的乘客的队列
         self.elevator_list = []  # 电梯里乘客的队列
         self.total_list = []  # 分配完之后所有乘客的一个总队列
+        self.shared_list = shared  # 乘客队列是否共享
+        self.thread_name = "created"  # 电梯的线程名
 
     def start_elevator(self):  # 电梯开始运行，其中包含多种逻辑，全部拆分出来
-        while self.total_list:  # 当整个乘客列表全都没了以后，再停止运行
+        print("电梯开始运行")
+        self.thread_name = threading.current_thread().name
+        while self.total_list or self.elevator_clock != convert_time.time_to_num("24:00:00"):  # 当整个乘客列表全都没了以后，再停止运行
             self.made_in_heaven()  # 电梯开始之后先判断是否应该进行时间加速，再跑
             self.run_elevator()
         while self.elevator_clock != convert_time.time_to_num("24:00:00"):
@@ -248,7 +252,10 @@ class Elevator:
                 self.global_condition.notify_all()
             else:
                 self.global_condition.wait_for(lambda: self.elevator_clock == self.global_clock.value)
-            share_call_elevator()
+            if not self.shared_list:
+                pass
+            else:
+                share_call_elevator(self.shared_list)
 
     def made_in_heaven(self):  # 神父要上天堂了，当电梯保持静止状态并且电梯预时间戳还有东西没有处理，就进行时间加速，每次加速一秒
         while self.elevator_timestamp and self.acceleration_switch is True:
@@ -319,7 +326,7 @@ class Elevator:
                                                                                            (self.elevator_clock)) + "离开电梯")
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
-        self.chime.info(self.elevator_clock, "门已开，在10s内乘客离开")
+        self.chime.info(self.elevator_clock, f"{self.thread_name}门已开，在10s内乘客离开")
         self.passenger_leave(destination_floor)
         self.passenger_into(destination_floor)
         for second in range(10):  # 同电梯运行时的时间判断
