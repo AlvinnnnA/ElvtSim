@@ -1,4 +1,4 @@
-from Scheduler.Thread.thread import Passenger
+from Scheduler.Thread.thread1 import Passenger
 import parser
 import json
 

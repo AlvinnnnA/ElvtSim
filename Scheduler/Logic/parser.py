@@ -1,4 +1,4 @@
-from Scheduler.Thread.thread import Elevator
+from Scheduler.Thread.thread1 import Elevator
 import json
 from itertools import combinations
 

@@ -2,6 +2,8 @@
 这里是一些非常常用的类型定义和方法！
 """
 import time
+from types import NoneType
+
 
 class Event:  # 事件类型定义
     def __init__(self, eventtype: str, eventinfo: str, pid: int = None, info_extra=None):

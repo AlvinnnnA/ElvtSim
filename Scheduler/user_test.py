@@ -3,7 +3,7 @@ import random
 import numpy as np
 from scipy.stats import norm
 from pandas import DataFrame
-from Scheduler.Thread.thread import Passenger
+from Scheduler.Thread.thread1 import Passenger
 from Scheduler.Thread.convert_time import *
 import matplotlib.pyplot as plt
 

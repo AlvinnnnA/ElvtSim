@@ -1,7 +1,7 @@
-from ElvtSim.Scheduler.Thread import convert_time
+from Scheduler.Thread import convert_time
 import multiprocessing
-from ElvtSim.common_objects import Event
-from ElvtSim.Log.Common import bifrost
+from common_objects import Event
+from Log.Common import bifrost
 import threading
 
 DEFAULT_CONF = {'event_enabled': True, 'verbose': True, 'state': 'static', 'speed': 're-start', 'initial_floor': 4,
