@@ -1,9 +1,12 @@
 /.idea/*
 /floor_conf_adv_wip.ui
 /tester.py
-
+/*.csv
 /Scheduler/Logic/user.csv
 /Scheduler/Logic/user.csv
 /Scheduler/Logic/config.json
 /Scheduler/Logic/user.csv
 /Data/*.log
+/Data/database.sqlite3
+/Unit_test/config.json
+/Unit_test/user.csv
