@@ -41,6 +41,12 @@ class DefaultPrint:
         print("Default Print init")
         self.logs = self.bridge()
 
+    def sql_re_init(self):
+        pass
+
+    def user_to_file(self):
+        pass
+
     class bridge():
         def append(self,*args):
             print(*args)

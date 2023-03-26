@@ -4,6 +4,7 @@ import multiprocessing
 from common_objects import Event, DefaultPrint
 from Log.Common import bifrost
 import threading
+from copy import copy,deepcopy
 
 DEFAULT_CONF = {'event_enabled': True, 'verbose': True, 'state': 'static', 'speed': 're-start', 'initial_floor': 4,
                 'initial_dest': 1, 'min_floor': 1, 'max_floor': 4, "max_weight": 15, 'initial_time': "06:00:00",
@@ -22,7 +23,6 @@ def run_in_thread(thread_name):  # 限制函数只能在指定线程中运行
     return decorator
 
 
-@run_in_thread("thread1")
 def share_call_elevator(share_list):  # 共享队列的电梯呼叫
     for passenger in share_list:
         if passenger.call_time == global_clock.value:  # 如果乘客的呼叫时间等于电梯的当前时间
@@ -68,7 +68,6 @@ def choose_down(passenger):  # 选择下行电梯
 
 class Elevator:
     def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint(), shared = False):  # 创建一个电梯类，并且赋予电梯相应的属性
-
         if conf_dict is None:
             conf_dict = DEFAULT_CONF
         self.__event_enabled = conf_dict['event_enabled']  # 是否启用事件处理器报送
@@ -112,16 +111,19 @@ class Elevator:
             f"{self.name} initialized with available floors {self.available_floors} min {self.MIN_FLOOR} max {self.MAX_FLOOR}")
 
     def start_elevator(self):  # 电梯开始运行，其中包含多种逻辑，全部拆分出来
-        self.logger.info(f"{self.name} started")
+        self.logger.sql_re_init()
+        self.logger.info(f"{self.name} {threading.get_ident()} started")
         while self.total_list:  # 当整个乘客列表全都没了以后，再停止运行
             self.made_in_heaven()  # 电梯开始之后先判断是否应该进行时间加速，再跑
             self.run_elevator()
         while self.elevator_clock != convert_time.time_to_num("24:00:00"):
             self.increment_and_sync_time()
             self.run_elevator()
+        print(f"{self.name} finished")
         self.logger.info(f"{self.name} finished")
 
     def run_elevator(self):
+        # self.logger.info("test")
         while self.waiting_list or self.elevator_list:
             self.search_called()  # 每运行一层都检查一下命令队列，检查电梯的目的地
             if self.destination_floor == self.current_floor:  # 如果电梯停下，检查是否应该换向
@@ -376,7 +378,7 @@ class Elevator:
                     else:
                         if passenger.call_time in self.elevator_timestamp:
                             self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                            self.logger.into(self.elevator_clock, passenger.uid)
+                            self.logger.into(self.elevator_clock, copy(passenger.uid))
             elif len(self.elevator_list) == self.MAX_WEIGHT:
                 self.logger.debug('%s FULL. NO enter at %d' % (self.name, self.current_floor))
                 break
@@ -388,7 +390,7 @@ class Elevator:
                 self.elevator_list.remove(passenger)
                 if passenger in self.total_list:
                     self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
-                self.logger.exit(self.elevator_clock, passenger.uid)
+                self.logger.exit(self.elevator_clock, copy(passenger.uid))
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
         self.logger.debug('%s open door at %d' % (self.name, self.current_floor))
@@ -409,7 +411,6 @@ class Passenger:
         self.into_elevator = None  # 乘客要进入的电梯
         self.maybe_into_elevator = None  # 乘客可能进入的电梯
         self.peak_hours = None  # 乘客的高峰时间
-
     def __repr__(self):
         return f"User {self.uid}, {convert_time.num_to_time(self.call_time)}, src {self.src_floor}, dest {self.dest_floor} "
 

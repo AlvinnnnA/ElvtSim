@@ -5,10 +5,76 @@ import logging
 
 REPORTER_DEFAULT_LOG = {
     "mode": "log",
-    "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log"}
+    "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
+    "level": "DEBUG"}
 REPORTER_DEFAULT_DB = {
     "mode": "sql",
     "path": f"Data/database.sqlite3"}
+
+
+class sql_ops:
+    def __init__(self, conf, batch_number=-1):
+        self.conn = sqlite3.connect(conf["path"])
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS metadata (batch_number integer, timestamp_log text)")
+        self.conn.commit()
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS sim_log (batch_number integer, timestamp_log text, level_log text, message text)")
+        self.conn.commit()
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS user_log (batch_number integer, internal_time text, uid integer, event text)")
+        self.conn.commit()
+        if batch_number<0:
+            query_result = self.cursor.execute('SELECT max(batch_number) FROM metadata').fetchone()
+            if query_result and query_result[0]:
+                self.batch_number = query_result[0] + 1
+            else:
+                self.batch_number = 1
+        else:
+            self.batch_number = batch_number
+        #print(self.batch_number, str(dt.now()))
+        self.cursor.execute("insert into metadata (batch_number, timestamp_log) values (?,?)",
+                            (self.batch_number, str(dt.now())))
+        self.conn.commit()
+
+    def info(self, info: str):
+        self.cursor.execute(
+            "insert into sim_log (batch_number, timestamp_log,level_log,message) values (?,?,?,?)",
+            (self.batch_number, str(dt.now()), "INFO", info))
+        self.conn.commit()
+
+    def debug(self, info: str):
+        self.cursor.execute(
+            "insert into sim_log (batch_number, timestamp_log,level_log,message) values (?,?,?,?)",
+            (self.batch_number, str(dt.now()), "DEBUG", info))
+        self.conn.commit()
+
+    def warning(self, info: str):
+        self.cursor.execute(
+            "insert into sim_log (batch_number, timestamp_log,level_log,message) values (?,?,?,?)",
+            (self.batch_number, str(dt.now()), "WARNING", info))
+        self.conn.commit()
+
+    def error(self, info: str):
+        self.cursor.execute(
+            "insert into sim_log (batch_number, timestamp_log,level_log,message) values (?,?,?,?)",
+            (self.batch_number, str(dt.now()), "ERROR", info))
+        self.conn.commit()
+
+    def critical(self, info: str):
+        self.cursor.execute(
+            "insert into sim_log (batch_number, timestamp_log,level_log,message) values (?,?,?,?)",
+            (self.batch_number, str(dt.now()), "CRITICAL", info))
+        self.conn.commit()
+
+    def append(self, info: list):
+        self.cursor.execute(
+            "insert into user_log (batch_number, internal_time,uid,event) values (?,?,?,?)",
+            (self.batch_number, info[2], info[1], info[0]))
+        self.conn.commit()
+
+
 
 
 class Reporter:
@@ -17,10 +83,10 @@ class Reporter:
             self.conf = conf
             self.logger = logging.getLogger()
             # Set the logging level to INFO
-            self.logger.setLevel(logging.INFO)
+            self.logger.setLevel(conf["level"])
             # Create a file handler and set its logging level to INFO
             self.file_handler = logging.FileHandler(conf["path"])
-            self.file_handler.setLevel(logging.INFO)
+            self.file_handler.setLevel(conf["level"])
             # Create a formatter and add it to the file handler
             self.formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(message)s')
             self.file_handler.setFormatter(self.formatter)
@@ -28,63 +94,20 @@ class Reporter:
             self.logger.addHandler(self.file_handler)
             self.user_logs = []
         elif conf["mode"] == "sql":
-            class sql_ops:
-                def __init__(self, conf):
-                    self.conn = sqlite3.connect(conf["path"])
-                    self.cursor = self.conn.cursor()
-                    self.cursor.execute(
-                        "CREATE TABLE IF NOT EXISTS metadata (batch_number integer, timestamp datetime)")
-                    self.conn.commit()
-                    self.cursor.execute(
-                        "CREATE TABLE IF NOT EXISTS sim_log (batch_number integer, timestamp datetime, level text, message text)")
-                    self.conn.commit()
-                    self.cursor.execute(
-                        "CREATE TABLE IF NOT EXISTS user_log (batch_number integer, internal_time text, uid integer, event text)")
-                    self.conn.commit()
-                    query_result = self.cursor.execute('SELECT max(batch_number) FROM metadata').fetchone()
-                    if query_result and query_result[0]:
-                        self.batch_number = query_result[0] + 1
-                    else:
-                        self.batch_number = 1
-                    self.cursor.execute("insert into metadata (batch_number, timestamp) values (%s,%s)",
-                                        (self.batch_number, dt.now()))
-                    self.conn.commit()
-
-                def info(self,  info: str):
-                    self.cursor.execute(
-                        "insert into simlog (batch_number, timestamp,level,message) values (%s,%s,%s,%s)",
-                        (self.batch_number, dt.now(), "INFO", info))
-                    self.conn.commit()
-                def debug(self, info: str):
-                    self.cursor.execute(
-                        "insert into simlog (batch_number, timestamp,level,message) values (%s,%s,%s,%s)",
-                        (self.batch_number, dt.now(), "DEBUG", info))
-                    self.conn.commit()
-                def warning(self, info: str):
-                    self.cursor.execute(
-                        "insert into simlog (batch_number, timestamp,level,message) values (%s,%s,%s,%s)",
-                        (self.batch_number, dt.now(), "WARNING", info))
-                    self.conn.commit()
-                def error(self, info: str):
-                    self.cursor.execute(
-                        "insert into simlog (batch_number, timestamp,level,message) values (%s,%s,%s,%s)",
-                        (self.batch_number, dt.now(), "ERROR", info))
-                    self.conn.commit()
-                def critical(self, info: str):
-                    self.cursor.execute(
-                        "insert into simlog (batch_number, timestamp,level,message) values (%s,%s,%s,%s)",
-                        (self.batch_number, dt.now(), "CRITICAL", info))
-                    self.conn.commit()
-                def append(self, info: list):
-                    self.cursor.execute(
-                        "insert into user_log (batch_number, internal_time,uid,event) values (%s,%s,%s,%s)",
-                        (self.batch_number, info[2], info[1], info[0]))
-                    self.conn.commit()
-
+            self.conf = conf
             self.logger = sql_ops(conf)
+            self.batch_number = self.logger.batch_number
             self.user_logs = self.logger
         else:
             raise Exception("Invalid mode")
+
+    def sql_re_init(self):
+        if self.conf["mode"] == "sql":
+            self.logger = sql_ops(self.conf, self.batch_number)
+            self.batch_number = self.logger.batch_number
+            self.user_logs = self.logger
+        else:
+            pass
 
     def info(self, info: str):
         self.logger.info(info)
@@ -120,11 +143,13 @@ class Reporter:
     def call(self, timestamp: int, uid, floor):
         formatted_timestamp = self._format_timestamp(timestamp)
         entry = ["CALL", uid, formatted_timestamp, floor]
+        # print(entry)
         self.user_logs.append(entry)
 
     def user_to_file(self):
         if self.conf["mode"] == "log":
-            with open(os.path.split(self.conf['path'])[0].join(f"user_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv"), "w") as f:
+            print(self.user_logs[:3])
+            with open(f"user_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv", "w") as f:
                 for entry in self.user_logs:
                     f.write(",".join(map(str, entry)) + "\n")
         else:
