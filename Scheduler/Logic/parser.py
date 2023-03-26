@@ -1,9 +1,6 @@
 import csv
-import os
-from pprint import pprint
-from Scheduler.Logic import config_manager
-from Scheduler import user_fit
-from Scheduler.Thread.thread1 import Elevator, Passenger
+from Scheduler.Logic import config_manager, user_fit
+from Scheduler.Thread.thread1 import Passenger
 import json
 from itertools import combinations
 
@@ -120,7 +117,6 @@ def auto_operator(config, passenger_queue, to_json=False):
 
 
 def generate_floors(floors, elevator_count):
-    # TODO reduce the allocation to only sensible ones(or do some baseline cases allocation)
     # generate all possible floor combinations for a single elevator
     elevator_floors = []
     for i in range(1, len(floors) + 1):
@@ -159,7 +155,7 @@ def combine_all_and_output(config, passenger):
                 passenger_queue = passenger_getter(passenger)
             except:
                 raise ValueError("Passenger must be a list or a str to csv")
-        return passenger_queue[:50]
+        return passenger_queue
 
     def get_thread_config(config):
         if isinstance(config, str):
@@ -167,7 +163,7 @@ def combine_all_and_output(config, passenger):
             if isinstance(config_dict,list):
                 print("INFO: Scene mode. Config is a list of dicts.")
                 # TODO handle this
-                pass
+                raise NotImplementedError("Scene mode not implemented yet")
         elif isinstance(config, dict):
             config_dict = config
         else:
@@ -181,6 +177,7 @@ def combine_all_and_output(config, passenger):
     passenger_queue = get_passenger_info(passenger)
     config_dict = get_thread_config(config)
     floor_dict = {}
+    #print(config_dict)
     for name, info in config_dict['elevators'].items():
         floor_dict[name] = info['floor_list']
     config_dict['results'] = auto_operator(floor_dict, passenger_queue)

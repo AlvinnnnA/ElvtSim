@@ -1,13 +1,3 @@
-from pprint import pprint
-
-import Scheduler.Thread.thread1 as thread
-import Scheduler.Logic.parser as parser
-
-# TODO This needs total rework to first build generate elevator objects then initiating dispatcher
-
-import itertools
-
-
 def generate_elevator_configs(building_info, strategy='segmented'):
     floor_count = building_info['floor_count']
     elevator_count = building_info['elevator_count']
@@ -29,6 +19,7 @@ def generate_elevator_configs(building_info, strategy='segmented'):
 
 def generate_high_low_odd_even_configs(floor_count, elevator_count):
     if elevator_count not in (4, 8, 12):
+        # TODO - log this and all others
         print("ERROR: high_low_odd_even strategy requires 4, 8, or 12 elevators")
         return False
 
@@ -144,6 +135,7 @@ def generate_elevator_configs_from_scene(building_info):
             gen_config = building_info.copy()
             gen_config['elevators'] = elevator_configs
             gen_config['base']['config_strategy'] = strategy
+            gen_config["mode"] = "config"
             gen_config_list.append(gen_config)
             #print(f"Strategy: {strategy}\nElevator Configurations:")
             #pprint(elevator_configs)
