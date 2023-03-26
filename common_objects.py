@@ -5,6 +5,8 @@ import time
 from types import NoneType
 from datetime import datetime as dt
 
+from Scheduler.Thread import convert_time
+
 
 class Event:  # 事件类型定义
     def __init__(self, eventtype: str, eventinfo: str, pid: int = None, info_extra=None):
@@ -71,6 +73,20 @@ class DefaultPrint:
         entry = ["CRITICAL", formatted_timestamp, info]
         self.logs.append(entry)
 
+    def call(self, clock,uid,floor):
+        formatted_timestamp = convert_time.num_to_time(clock)
+        entry = ["CALL", formatted_timestamp, uid,floor]
+        self.logs.append(entry)
+
+    def into(self,clock, uid):
+        formatted_timestamp = convert_time.num_to_time(clock)
+        entry = ["INTO", formatted_timestamp, uid]
+        self.logs.append(entry)
+
+    def exit(self,clock,uid):
+        formatted_timestamp = convert_time.num_to_time(clock)
+        entry = ["EXIT", formatted_timestamp, uid]
+        self.logs.append(entry)
 
 def make_event_instance(event_dict: dict):
     event = Event(event_dict["eventtype"], event_dict["eventinfo"], event_dict["pid"], event_dict["info_extra"])

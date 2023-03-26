@@ -135,6 +135,7 @@ def generate_elevator_configs_from_scene(building_info):
             gen_config = building_info.copy()
             gen_config['elevators'] = elevator_configs
             gen_config['base']['config_strategy'] = strategy
+            gen_config["mode"] = "config"
             gen_config_list.append(gen_config)
             #print(f"Strategy: {strategy}\nElevator Configurations:")
             #pprint(elevator_configs)

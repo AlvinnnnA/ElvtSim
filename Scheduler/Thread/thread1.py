@@ -67,7 +67,7 @@ def choose_down(passenger):  # 选择下行电梯
 
 
 class Elevator:
-    def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint):  # 创建一个电梯类，并且赋予电梯相应的属性
+    def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint()):  # 创建一个电梯类，并且赋予电梯相应的属性
 
         if conf_dict is None:
             conf_dict = DEFAULT_CONF
@@ -83,8 +83,7 @@ class Elevator:
                                    multiprocessing.current_process().pid,
                                    "Elevator")
             self.event_queue.put(register_event)
-        self.logger = logger()
-        self.chime = bifrost.Chime()
+        self.logger = logger
         self.available_floors = conf_dict['floor_list']  # 电梯的可用楼层
         try:
             self.name = conf_dict['name']  # 电梯的名字
@@ -171,7 +170,6 @@ class Elevator:
                 self.current_floor = self.current_floor - 1
                 self.logger.debug(
                     f'{self.name} descending to {self.current_floor} Floor. Internal clock: {convert_time.num_to_time(self.elevator_clock)}')
-                self.chime.info(self.elevator_clock, '电梯已到达' + str(self.current_floor) + '层')
                 if self.elevator_speed == 're-start':
                     self.logger.debug(
                         f'{self.name} ascending to {self.current_floor} Floor from static. Internal clock: {convert_time.num_to_time(self.elevator_clock)}')
@@ -330,6 +328,7 @@ class Elevator:
         if not self.acceleration_switch:
             for passenger in self.total_list:
                 if passenger.call_time == self.elevator_clock:
+                    self.logger.call(self.elevator_clock, passenger.uid, passenger.dest_floor)
                     passenger.on_called(passenger.into_elevator)
 
     def check_min(self):  # 遍历电梯队列与等待队列，计算最低到达楼层
@@ -371,11 +370,9 @@ class Elevator:
                     else:
                         if passenger.call_time in self.elevator_timestamp:
                             self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                            self.chime.info(self.elevator_clock, "乘客" + str(passenger.uid) + "于" +
-                                            str(convert_time.num_to_time(self.elevator_clock)) + "进入电梯")
+                            self.logger.into(self.elevator_clock, passenger.uid)
             elif len(self.elevator_list) == self.MAX_WEIGHT:
                 self.logger.debug('%s FULL. NO enter at %d' % (self.name, self.current_floor))
-                self.chime.info(self.elevator_clock, '电梯人员已到达上限')
                 break
 
     def passenger_leave(self, destination_floor):  # 判断是否有乘客离开，如果有，就在elevator将其删除
@@ -385,11 +382,9 @@ class Elevator:
                 self.elevator_list.remove(passenger)
                 if passenger in self.total_list:
                     self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
-                self.chime.info(self.elevator_clock, "乘客" + str(passenger.uid) + "于" + str(convert_time.num_to_time
-                                                                                              (self.elevator_clock)) + "离开电梯")
+                self.logger.exit(self.elevator_clock, passenger.uid)
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
-        self.chime.info(self.elevator_clock, "门已开，在10s内乘客离开")
         self.logger.debug('%s open door at %d' % (self.name, self.current_floor))
         self.passenger_leave(destination_floor)
         self.passenger_into(destination_floor)

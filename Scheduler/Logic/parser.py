@@ -163,7 +163,7 @@ def combine_all_and_output(config, passenger):
             if isinstance(config_dict,list):
                 print("INFO: Scene mode. Config is a list of dicts.")
                 # TODO handle this
-                pass
+                raise NotImplementedError("Scene mode not implemented yet")
         elif isinstance(config, dict):
             config_dict = config
         else:
