@@ -390,7 +390,7 @@ class Elevator:
                     else:
                         if passenger.call_time in self.elevator_timestamp:
                             self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                            self.logger.into(self.elevator_clock, copy(passenger.uid))
+                            self.logger.into(self.elevator_clock, passenger.uid,self.current_floor,self.name)
             elif len(self.elevator_list) == self.MAX_WEIGHT:
                 self.logger.debug('%s FULL. NO enter at %d' % (self.name, self.current_floor))
                 break
@@ -402,7 +402,7 @@ class Elevator:
                 self.elevator_list.remove(passenger)
                 if passenger in self.total_list:
                     self.total_list.remove(passenger)  # 当乘客离开之后将乘客从总列表中移除
-                self.logger.exit(self.elevator_clock, passenger.uid, self.name)
+                self.logger.exit(self.elevator_clock, passenger.uid, self.current_floor,self.name)
 
     def open_door(self, destination_floor):  # 门开的同时进行乘客的进入与离开
         self.logger.debug('%s open door at %d' % (self.name, self.current_floor))

@@ -36,6 +36,7 @@ class Event:  # 事件类型定义
         event_dict["info_extra"] = self.info_extra
         return event_dict
 
+
 class DefaultPrint:
     def __init__(self):
         print("Default Print init")
@@ -48,7 +49,7 @@ class DefaultPrint:
         pass
 
     class bridge():
-        def append(self,*args):
+        def append(self, *args):
             print(*args)
 
     def _format_timestamp(self, timestamp) -> str:
@@ -79,22 +80,22 @@ class DefaultPrint:
         entry = ["CRITICAL", formatted_timestamp, info]
         self.logs.append(entry)
 
-    def call(self, clock,uid,floor):
+    def call(self, clock, *args):
         formatted_timestamp = convert_time.num_to_time(clock)
-        entry = ["CALL", formatted_timestamp, uid,floor]
+        entry = ["CALL", formatted_timestamp, *args]
         self.logs.append(entry)
 
-    def into(self,clock, uid):
+    def into(self, clock, uid, *args):
         formatted_timestamp = convert_time.num_to_time(clock)
-        entry = ["INTO", formatted_timestamp, uid]
+        entry = ["INTO", formatted_timestamp, uid, *args]
         self.logs.append(entry)
 
-    def exit(self,clock,uid):
+    def exit(self, clock, uid, *args):
         formatted_timestamp = convert_time.num_to_time(clock)
-        entry = ["EXIT", formatted_timestamp, uid]
+        entry = ["EXIT", formatted_timestamp, uid, *args]
         self.logs.append(entry)
+
 
 def make_event_instance(event_dict: dict):
     event = Event(event_dict["eventtype"], event_dict["eventinfo"], event_dict["pid"], event_dict["info_extra"])
     return event
-

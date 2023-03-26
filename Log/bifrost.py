@@ -132,14 +132,14 @@ class Reporter:
         seconds = timestamp % 60
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
-    def into(self, timestamp: int, uid):
+    def into(self, timestamp: int, uid,floor,elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["INTO", uid, formatted_timestamp]
+        entry = ["INTO", uid,formatted_timestamp,floor,elevator]
         self.user_logs.append(entry)
 
-    def exit(self, timestamp: int, uid,elevator):
+    def exit(self, timestamp: int, uid,floor,elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["EXIT", uid, formatted_timestamp,elevator]
+        entry = ["EXIT", uid, formatted_timestamp,floor,elevator]
         # print(entry) if timestamp > convert_time.time_to_num("19:55:00") else None
         self.user_logs.append(entry)
 
