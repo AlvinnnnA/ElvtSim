@@ -20,18 +20,18 @@
   {
     "elevator1": {"event_enabled": true, "verbose": true, "state": "static",
                    "speed": "re-start", "initial_floor": 1,
-                   "initial_dest": 1, "min_floor": 1, "max_floor": 9, "max_weight": 15, "initial_time": "00:00:00",
+                   "initial_dest": 1, "min_floor": 1, "max_floor": 12, "max_weight": 15, "initial_time": "00:00:00",
                    "floor_list": [1, 2, 3, 4,5],"name": "elevator1"},
     "elevator2": {"event_enabled": true, "verbose": true, "state": "static",
                    "speed": "re-start", "initial_floor": 1,
-                   "initial_dest": 1, "min_floor": 1, "max_floor": 9, "max_weight": 15, "initial_time": "00:00:00",
+                   "initial_dest": 1, "min_floor": 1, "max_floor": 12, "max_weight": 15, "initial_time": "00:00:00",
                    "floor_list": [1, 3,5,7,9],"name": "elevator2"},
     "elevator3": {"event_enabled": true, "verbose": true, "state": "static",
                    "speed": "re-start", "initial_floor": 1,
-                   "initial_dest": 1, "min_floor": 1, "max_floor": 9, "max_weight": 15, "initial_time": "00:00:00",
+                   "initial_dest": 1, "min_floor": 1, "max_floor": 12, "max_weight": 15, "initial_time": "00:00:00",
                    "floor_list": [1, 6,7,8,9],"name": "elevator3"},
     "elevator4": {"event_enabled": true, "verbose": true, "state": "static",
                    "speed": "re-start", "initial_floor": 1,
-                   "initial_dest": 1, "min_floor": 1, "max_floor": 9, "max_weight": 15, "initial_time": "00:00:00",
+                   "initial_dest": 1, "min_floor": 1, "max_floor": 12, "max_weight": 15, "initial_time": "00:00:00",
                    "floor_list": [1, 2,4,6,8],"name": "elevator4"}
 }}

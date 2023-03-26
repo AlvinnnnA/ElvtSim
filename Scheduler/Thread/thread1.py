@@ -23,7 +23,7 @@ def run_in_thread(thread_name):  # 限制函数只能在指定线程中运行
 
 
 @run_in_thread("thread1")
-def share_call_elevator():  # 共享队列的电梯呼叫
+def share_call_elevator(share_list):  # 共享队列的电梯呼叫
     for passenger in share_list:
         if passenger.call_time == global_clock.value:  # 如果乘客的呼叫时间等于电梯的当前时间
             if passenger.src_floor < passenger.dest_floor:  # 上行
@@ -67,7 +67,7 @@ def choose_down(passenger):  # 选择下行电梯
 
 
 class Elevator:
-    def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint()):  # 创建一个电梯类，并且赋予电梯相应的属性
+    def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint(), shared = False):  # 创建一个电梯类，并且赋予电梯相应的属性
 
         if conf_dict is None:
             conf_dict = DEFAULT_CONF
@@ -97,6 +97,7 @@ class Elevator:
         self.MIN_FLOOR = conf_dict['min_floor']  # 电梯的最低停靠楼层
         self.MAX_FLOOR = conf_dict['max_floor']  # 电梯的最高停靠楼层
         self.MAX_WEIGHT = conf_dict['max_weight']  # 电梯的最高搭乘人数为15人
+        self.available_floors = conf_dict['floor_list']  # 电梯的可用楼层
         self.elevator_clock = convert_time.time_to_num(conf_dict['initial_time'])  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
         self.global_clock = None  # 全局时间，保存的形式是时间戳（数字形式）
         self.global_condition = None
@@ -105,6 +106,8 @@ class Elevator:
         self.waiting_list = []  # 此时正在等待的乘客的队列
         self.elevator_list = []  # 电梯里乘客的队列
         self.total_list = []  # 分配完之后所有乘客的一个总队列
+        self.shared_list = shared  # 电梯与乘客共享的队列
+        self.thread_name = "created"  # 电梯的线程名字
         self.logger.info(
             f"{self.name} initialized with available floors {self.available_floors} min {self.MIN_FLOOR} max {self.MAX_FLOOR}")
 
@@ -312,7 +315,10 @@ class Elevator:
                 self.global_condition.notify_all()
             else:
                 self.global_condition.wait_for(lambda: self.elevator_clock == self.global_clock.value)
-            share_call_elevator()
+            if not self.shared_list:
+                pass
+            else:
+                share_call_elevator(self.shared_list)
 
     def made_in_heaven(self):  # 神父要上天堂了，当电梯保持静止状态并且电梯预时间戳还有东西没有处理，就进行时间加速，每次加速一秒
         while self.elevator_timestamp and self.acceleration_switch is True:

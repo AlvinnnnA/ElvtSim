@@ -3,9 +3,11 @@ from Scheduler.Logic import config_manager, user_fit
 from Scheduler.Thread.thread1 import Passenger
 import json
 from itertools import combinations
+import os
 
 
 def elevator_reader(elevator_json) -> dict:  # 传入一个电梯配置文件的json
+
     with open(elevator_json, 'r') as f:
         elevator_parse_dict = json.load(f)
     # for elevator in elevator_parse_dict[]:

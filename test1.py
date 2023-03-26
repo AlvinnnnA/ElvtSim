@@ -2,18 +2,20 @@ from pprint import pprint
 import threading
 from Scheduler.Thread.thread1 import Elevator, GlobalClock
 from Scheduler.Logic import parser
+import daemon
+import os
 
 
 def classify_elevator(final):  # 分类电梯，并将独立乘客分配到独立电梯，共同乘客分配到共同电梯
     groups = {}
-    elevator_list = list(final['config'].keys())
+    elevator_list = list(final['elevators'].keys())
 
-    for elevator in final['result']['elevators']:
+    for elevator in final['results']['elevators']:
         if len(elevator['group']) == 1:
             groups.setdefault('group1', []).append(elevator)  # 为独立运行电梯分组
         else:
             groups.setdefault('group2', []).append(elevator)  # 为共同运行电梯分组
-
+    pprint(groups)
     for group in groups['group1']:  # 为电梯分配乘客
         elevators = group['group']
         queue = group['queue']
@@ -44,19 +46,19 @@ def allocate_common_passenger(groups):  # 分配共同乘客
 
 
 if __name__ == '__main__':
-    final = parser.get_thread_config_test(1000)
-    pprint(final)
-    elevator_list = list(final['config'].keys())
+    abspath_config = os.path.abspath("Data/config.json")
+    final = daemon.main(abspath_config, use_random=True, random_args=[100, 9, "08:00:00", "20:00:00"])
+    # pprint(final)
+    # print(type(final),['elevators'])
+    elevator_list = list(final['elevators'].keys())
     elevator_lut = {}
-    for key, value in final['config'].items():
-        test_conf = {'event_enabled': True, 'verbose': True, 'state': 'static',
-                     'speed': 're-start', 'initial_floor': 4,
-                     'initial_dest': 1, 'min_floor': 1, 'max_floor': 9, "max_weight": 15, 'initial_time': "00:00:00",
-                     'floor_list': value}
-        elevator_lut[key] = Elevator(test_conf)
+    for key, value in final['elevators'].items():
+        elevator_lut[key] = Elevator(value)
+        if value["max_floor"] < final['base']['floor_count']:
+            raise Exception("Elevator {} max floor is less than floor count".format(key))
     share_list = classify_elevator(final)
 
-    global_clock = GlobalClock([value for key,value in elevator_lut.items()])
+    global_clock = GlobalClock([value for key, value in elevator_lut.items()])
     global_condition = threading.Condition()
 
     list_put = False
@@ -76,4 +78,3 @@ if __name__ == '__main__':
     thread2.start()
     thread3.start()
     thread4.start()
-
