@@ -155,7 +155,7 @@ def combine_all_and_output(config, passenger):
                 passenger_queue = passenger_getter(passenger)
             except:
                 raise ValueError("Passenger must be a list or a str to csv")
-        return passenger_queue[:50]
+        return passenger_queue
 
     def get_thread_config(config):
         if isinstance(config, str):
@@ -177,6 +177,7 @@ def combine_all_and_output(config, passenger):
     passenger_queue = get_passenger_info(passenger)
     config_dict = get_thread_config(config)
     floor_dict = {}
+    #print(config_dict)
     for name, info in config_dict['elevators'].items():
         floor_dict[name] = info['floor_list']
     config_dict['results'] = auto_operator(floor_dict, passenger_queue)

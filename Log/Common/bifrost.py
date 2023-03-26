@@ -9,27 +9,27 @@ class Reporter:
         return dt.strftime(timestamp, "%m/%d %H:%M:%S")
 
     def info(self, info: str):
-        formatted_timestamp = self._format_timestamp(dt.now)
+        formatted_timestamp = self._format_timestamp(dt.now())
         entry = ["INFO", formatted_timestamp, info]
         self.logs.append(entry)
 
     def debug(self, info: str):
-        formatted_timestamp = self._format_timestamp(dt.now)
+        formatted_timestamp = self._format_timestamp(dt.now())
         entry = ["DEBUG", formatted_timestamp, info]
         self.logs.append(entry)
 
     def warning(self, info: str):
-        formatted_timestamp = self._format_timestamp(dt.now)
+        formatted_timestamp = self._format_timestamp(dt.now())
         entry = ["WARNING", formatted_timestamp, info]
         self.logs.append(entry)
 
     def error(self, info: str):
-        formatted_timestamp = self._format_timestamp(dt.now)
+        formatted_timestamp = self._format_timestamp(dt.now())
         entry = ["ERROR", formatted_timestamp, info]
         self.logs.append(entry)
 
     def critical(self, info: str):
-        formatted_timestamp = self._format_timestamp(dt.now)
+        formatted_timestamp = self._format_timestamp(dt.now())
         entry = ["CRITICAL", formatted_timestamp, info]
         self.logs.append(entry)
 
