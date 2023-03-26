@@ -418,7 +418,7 @@ class Passenger:
 
     @classmethod  # 随机生成乘客的函数
     def random_passenger(cls, number: int, highest: int, start_time, end_time, logger=DefaultPrint()):
-        logger.info("Generating random passengers")
+        logger.info("Passenger: Generating random passengers")
         born_passenger_list = []
         for i in range(number):
             start = random.randint(1, highest)

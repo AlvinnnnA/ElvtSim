@@ -38,8 +38,8 @@ class Event:  # 事件类型定义
 
 class DefaultPrint:
     def __init__(self):
-        print("Default Print as log init")
-        self.logs = self.bridge
+        print("Default Print init")
+        self.logs = self.bridge()
 
     class bridge():
         def append(self,*args):
