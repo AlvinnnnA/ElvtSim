@@ -76,10 +76,11 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
                                        log_configs=log_configs)
     if ready_results is True:
         pprint(daemon.kickstart())
+        pass
     else:
         for scene_instance in ready_results["scene"]:
             scene_instance.entry_point(ready_results["user_queue"], log_configs=ready_results["log"])
-            pprint(scene_instance.kickstart())
+            #pprint(scene_instance.kickstart())
     # TODO fix this
 
 

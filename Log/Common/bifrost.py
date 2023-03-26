@@ -1,3 +1,4 @@
+import os.path
 from datetime import datetime as dt
 import sqlite3
 import logging
@@ -13,6 +14,7 @@ REPORTER_DEFAULT_DB = {
 class Reporter:
     def __init__(self, conf=REPORTER_DEFAULT_LOG):
         if conf["mode"] == "log":
+            self.conf = conf
             self.logger = logging.getLogger()
             # Set the logging level to INFO
             self.logger.setLevel(logging.INFO)
@@ -120,3 +122,11 @@ class Reporter:
         formatted_timestamp = self._format_timestamp(timestamp)
         entry = ["CALL", uid, formatted_timestamp, floor]
         self.user_logs.append(entry)
+
+    def user_to_file(self):
+        if self.conf["mode"] == "log":
+            with open(os.path.split(self.conf['path'])[0].join(f"user_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv"), "w") as f:
+                for entry in self.user_logs:
+                    f.write(",".join(map(str, entry)) + "\n")
+        else:
+            self.info("User logs are stored in the database")
