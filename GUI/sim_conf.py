@@ -1,18 +1,11 @@
 """
 配置文件生成向导
 """
-import operator
-import sys
-from threading import Thread
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-                            QMetaObject, QObject, QPoint, QRect,
-                            QSize, QTime, QUrl, Qt, Slot)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-                           QFont, QFontDatabase, QGradient, QIcon,
-                           QImage, QKeySequence, QLinearGradient, QPainter,
-                           QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
+from PySide6.QtCore import (QCoreApplication, QLocale,
+                            QMetaObject, QRect,
+                            Qt, Slot)
+from PySide6.QtWidgets import (QGroupBox, QLabel,
                                QProgressBar, QSizePolicy, QSpacerItem, QSpinBox,
                                QVBoxLayout, QWidget, QWizard, QWizardPage, QHBoxLayout, QListWidget, QListWidgetItem,
                                QGridLayout, QCheckBox, QPushButton, QLineEdit, QButtonGroup, QDialog, QDialogButtonBox)
@@ -21,7 +14,7 @@ from common_objects import Event
 import os
 
 from GUI.wheels import ElvtTeamEventPrompt
-from Log.Common import bifrost
+from Log import bifrost
 
 ROOT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

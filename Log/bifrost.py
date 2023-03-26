@@ -3,6 +3,8 @@ from datetime import datetime as dt
 import sqlite3
 import logging
 
+from Scheduler.Thread import convert_time
+
 REPORTER_DEFAULT_LOG = {
     "mode": "log",
     "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
@@ -135,20 +137,22 @@ class Reporter:
         entry = ["INTO", uid, formatted_timestamp]
         self.user_logs.append(entry)
 
-    def exit(self, timestamp: int, uid):
+    def exit(self, timestamp: int, uid,elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["EXIT", uid, formatted_timestamp]
+        entry = ["EXIT", uid, formatted_timestamp,elevator]
+        # print(entry) if timestamp > convert_time.time_to_num("19:55:00") else None
         self.user_logs.append(entry)
 
-    def call(self, timestamp: int, uid, floor):
+    def call(self, timestamp: int, uid, floor,elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["CALL", uid, formatted_timestamp, floor]
-        # print(entry)
+        entry = ["CALL", uid, formatted_timestamp, floor,elevator]
+        # print(entry) if timestamp > convert_time.time_to_num("19:55:00") else None
         self.user_logs.append(entry)
 
     def user_to_file(self):
+        self.info("User logs are being stored in the file")
         if self.conf["mode"] == "log":
-            print(self.user_logs[:3])
+            # print(self.user_logs[:3])
             with open(f"user_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv", "w") as f:
                 for entry in self.user_logs:
                     f.write(",".join(map(str, entry)) + "\n")

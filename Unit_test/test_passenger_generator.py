@@ -5,19 +5,25 @@ import Scheduler.Logic.parser as parser
 import Scheduler.Thread.thread1 as thread
 import unittest
 from pandas import DataFrame
+from daemon import main
+from datetime import datetime as dt
 
 
 class TestUsergen(unittest.TestCase):
     def setUp(self):
-        self.users = thread.Passenger.random_passenger(1000, 9, '08:00:00', '22:00:00')
+        self.users = thread.Passenger.random_passenger(10000, 12, '19:59:00', '20:00:00')
         usergen.fit_users_to_curve(self.users, ['09:00:00', '12:00:00', '18:00:00'], '08:00:00', '22:00:00')
         user_list = []
         for user in self.users:
             user_list.append(user.to_list())
         self.df = DataFrame(user_list,
                             columns=['uid', 'src_floor', 'dest_floor', 'occurrence_time', 'occurrence_time_seconds'])
-        usergen.plot_user_occurrence(self.users)
+        #usergen.plot_user_occurrence(self.users)
         self.df.to_csv('user.csv', index=False)
+        main(config='config.json',user_csv='user.csv',log_configs={
+             "mode": "log",
+             "path": f"{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
+             "level": "DEBUG"})
         self.passenger_list = parser.passenger_getter(os.path.join(os.path.abspath(os.path.curdir),
                                                                    '../Scheduler/Logic/user.csv'))
 

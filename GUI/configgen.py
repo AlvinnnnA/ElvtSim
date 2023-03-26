@@ -6,7 +6,7 @@ import json
 import os
 import time
 from enum import Enum
-from Log.Common import bifrost
+from Log import bifrost
 
 ELEVATOR_ITEM_INDEX = 7
 

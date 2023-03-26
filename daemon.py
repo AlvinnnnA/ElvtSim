@@ -1,10 +1,8 @@
 import threading
-from pprint import pprint
 import json
-from Log.Common import bifrost
 from Scheduler.Logic import parser
 from Scheduler.Thread.thread1 import Passenger, Elevator, GlobalClock
-from Log.Common.bifrost import Reporter
+from Log.bifrost import Reporter
 from common_objects import DefaultPrint
 from datetime import datetime as dt
 
@@ -79,7 +77,7 @@ def classify_elevator(final, elevator_lut=None):  # 分类电梯，并将独立�
             groups.setdefault('group1', []).append(elevator)  # 为独立运行电梯分组
         else:
             groups.setdefault('group2', []).append(elevator)  # 为共同运行电梯分组
-    #pprint(groups)
+    # pprint(groups)
     for group in groups['group1']:  # 为电梯分配乘客
         elevators = group['group']
         queue = group['queue']
@@ -116,7 +114,7 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
                                        log_configs=log_configs)
     if ready_results is True:
         final = daemon.kickstart()
-        elevator_list = list(final['elevators'].keys())
+        # elevator_list = list(final['elevators'].keys())
         elevator_lut = {}
         for key, value in final['elevators'].items():
             elevator_lut[key] = Elevator(value, logger=daemon.simlog)
@@ -142,6 +140,7 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
             thread.start()
         for thread in thread_group:
             thread.join()  # Wait for thread to finish
+        daemon.simlog.info("Daemon: All threads finished")
         daemon.simlog.user_to_file()
     else:
         for scene_instance in ready_results["scene"]:
@@ -153,4 +152,8 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
 if __name__ == "__main__":
     config = "Data/config.json"
     user_csv = "Data/user.csv"
-    main(use_random=True, random_args=[10000, 12, "08:00:00", "20:00:00"])
+    main(user_csv=user_csv,
+         log_configs={
+             "mode": "log",
+             "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
+             "level": "INFO"},use_random=True,random_args=[10000, 12, '07:59:00', '20:00:00'])
