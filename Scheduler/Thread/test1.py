@@ -30,32 +30,11 @@ if __name__ == '__main__':
     final = parser.get_thread_config_test(20)
     pprint(final)
     classify_elevator(final)
-    test_conf_1 = {'event_enabled': True, 'verbose': True, 'state': 'static',
-                   'speed': 're-start', 'initial_floor': 4,
-                   'initial_dest': 1, 'min_floor': 1, 'max_floor': 6, "max_weight": 15, 'initial_time': "00:00:00",
-                   'floor_list': final["config"]["elevator1"]}
-    test_conf_2 = {'event_enabled': True, 'verbose': True, 'state': 'static',
-                   'speed': 're-start', 'initial_floor': 4,
-                   'initial_dest': 1, 'min_floor': 1, 'max_floor': 6, "max_weight": 15, 'initial_time': "00:00:00",
-                   'floor_list': final["config"]["elevator2"]}
-    test_conf_3 = {'event_enabled': True, 'verbose': True, 'state': 'static',
-                   'speed': 're-start', 'initial_floor': 4,
-                   'initial_dest': 1, 'min_floor': 1, 'max_floor': 6, "max_weight": 15, 'initial_time': "00:00:00",
-                   'floor_list': final["config"]["elevator3"]}
-    test_conf_4 = {'event_enabled': True, 'verbose': True, 'state': 'static',
-                   'speed': 're-start', 'initial_floor': 4,
-                   'initial_dest': 1, 'min_floor': 1, 'max_floor': 6, "max_weight": 15, 'initial_time': "00:00:00",
-                   'floor_list': final["config"]["elevator4"]}
     elevator_lut = {}
     for key,value in final['config'].items():
         test_conf = {'event_enabled': True, 'verbose': True, 'state': 'static',
                        'speed': 're-start', 'initial_floor': 4,
-                       'initial_dest': 1, 'min_floor': 1, 'max_floor': 6, "max_weight": 15, 'initial_time': "00:00:00",
-                       'floor_list': value}
+                       'initial_dest': 1, 'min_floor': 1, 'max_floor': 9, "max_weight": 15, 'initial_time': "00:00:00",
+                       'floor_list': value, 'name': key}
         elevator_lut[key] = Elevator(test_conf)
-    elevator1 = elevator_lut['elevator1']
-    print(elevator1)
-    print(elevator1.available_floors)
-    print(final['config']['elevator1'])
-    print(elevator_lut)
 

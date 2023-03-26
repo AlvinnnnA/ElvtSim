@@ -19,6 +19,7 @@ def generate_elevator_configs(building_info, strategy='segmented'):
 
 def generate_high_low_odd_even_configs(floor_count, elevator_count):
     if elevator_count not in (4, 8, 12):
+        # TODO - log this and all others
         print("ERROR: high_low_odd_even strategy requires 4, 8, or 12 elevators")
         return False
 
