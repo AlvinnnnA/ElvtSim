@@ -7,8 +7,8 @@ from Log.Common.bifrost import Reporter
 from common_objects import DefaultPrint
 from datetime import datetime as dt
 
-DEFAULT_CONFIG = "/Data/config.json"
-DEFAULT_USER_CSV = "/Data/users.csv"
+DEFAULT_CONFIG = "Data/config.json"
+DEFAULT_USER_CSV = "Data/users.csv"
 
 
 class InterLayer:
@@ -75,16 +75,16 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
     ready_results = daemon.entry_point(user_csv, use_random=use_random, random_args=random_args,
                                        log_configs=log_configs)
     if ready_results is True:
-        pprint(daemon.kickstart())
+        return daemon.kickstart()
         pass
     else:
         for scene_instance in ready_results["scene"]:
             scene_instance.entry_point(ready_results["user_queue"], log_configs=ready_results["log"])
-            #pprint(scene_instance.kickstart())
+            # return scene_instance.kickstart()
     # TODO fix this
 
 
 if __name__ == "__main__":
     config = "Data/config.json"
     user_csv = "Data/user.csv"
-    main(config, use_random=True, random_args=[100, 9, "08:00:00", "20:00:00"])
+    pprint(main(use_random=True, random_args=[100, 9, "08:00:00", "20:00:00"]))

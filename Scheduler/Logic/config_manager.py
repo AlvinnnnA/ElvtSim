@@ -49,14 +49,14 @@ def generate_high_low_odd_even_configs(floor_count, elevator_count):
     for i, group in enumerate(config_groups):
         odd_floors = [floor for floor in group['floors'] if floor % 2 != 0]
         even_floors = [floor for floor in group['floors'] if floor % 2 == 0]
-        elevator_configs[f'elevator{2 * i + 1}'] = {'accessible_floors': [1] + odd_floors}
-        elevator_configs[f'elevator{2 * i + 2}'] = {'accessible_floors': [1] + even_floors}
+        elevator_configs[f'elevator{2 * i + 1}'] = {'floor_list': [1] + odd_floors}
+        elevator_configs[f'elevator{2 * i + 2}'] = {'floor_list': [1] + even_floors}
 
     return elevator_configs
 
 
 def generate_segmented_configs(floor_count, elevator_count):
-    elevator_configs = {f'elevator{i + 1}': {'accessible_floors': [1]} for i in range(elevator_count)}
+    elevator_configs = {f'elevator{i + 1}': {'floor_list': [1]} for i in range(elevator_count)}
 
     if (floor_count - 1) / elevator_count %1 != 0:
         print('Warning: Segmented strategy requires an elevator count to be fraction of floor count-1. Rounding will occur and distribution won\'t be even')
@@ -65,16 +65,16 @@ def generate_segmented_configs(floor_count, elevator_count):
     segments.append((2 + (elevator_count - 1) * segment_size, floor_count + 1))
 
     for i, (start, end) in enumerate(segments):
-        elevator_configs[f'elevator{i + 1}']['accessible_floors'].extend(range(start, end))
+        elevator_configs[f'elevator{i + 1}']['floor_list'].extend(range(start, end))
 
     return elevator_configs
 
 
 def generate_round_robin_configs(floor_count, elevator_count):
-    elevator_configs = {f'elevator{i + 1}': {'accessible_floors': [1]} for i in range(elevator_count)}
+    elevator_configs = {f'elevator{i + 1}': {'floor_list': [1]} for i in range(elevator_count)}
 
     for floor in range(2, floor_count + 1):
-        elevator_configs[f'elevator{(floor - 2) % elevator_count + 1}']['accessible_floors'].append(floor)
+        elevator_configs[f'elevator{(floor - 2) % elevator_count + 1}']['floor_list'].append(floor)
 
     return elevator_configs
 
@@ -84,16 +84,16 @@ def generate_even_odd_configs(floor_count, elevator_count):
         print("ERROR: even_odd strategy requires an even number of elevators")
         return False
 
-    elevator_configs = {f'elevator{i + 1}': {'accessible_floors': [1]} for i in range(elevator_count)}
+    elevator_configs = {f'elevator{i + 1}': {'floor_list': [1]} for i in range(elevator_count)}
 
     odd_floors = [floor for floor in range(2, floor_count + 1) if floor % 2 != 0]
     even_floors = [floor for floor in range(2, floor_count + 1) if floor % 2 == 0]
 
     for i in range(elevator_count):
         if i % 2 == 0:
-            elevator_configs[f'elevator{i + 1}']['accessible_floors'].extend(odd_floors)
+            elevator_configs[f'elevator{i + 1}']['floor_list'].extend(odd_floors)
         else:
-            elevator_configs[f'elevator{i + 1}']['accessible_floors'].extend(even_floors)
+            elevator_configs[f'elevator{i + 1}']['floor_list'].extend(even_floors)
 
     return elevator_configs
 
@@ -105,21 +105,21 @@ def generate_custom_ratio_configs(floor_count, elevator_count, ratios):
     if ratio_sum % (floor_count - 1) != 0:
         raise ValueError("The sum of ratios must be fraction of (the floor_count - 1)")
 
-    elevator_configs = {f'elevator{i + 1}': {'accessible_floors': [1]} for i in range(elevator_count)}
+    elevator_configs = {f'elevator{i + 1}': {'floor_list': [1]} for i in range(elevator_count)}
 
     remaining_floors = floor_count - 1
     floor_idx = 2
 
     for i, ratio in enumerate(ratios):
         floors = int(remaining_floors * (ratio / ratio_sum))
-        elevator_configs[f'elevator{i + 1}']['accessible_floors'].extend(range(floor_idx, floor_idx + floors))
+        elevator_configs[f'elevator{i + 1}']['floor_list'].extend(range(floor_idx, floor_idx + floors))
         floor_idx += floors
         remaining_floors -= floors
         ratio_sum -= ratio
 
     # Distribute any remaining floors
     for floor in range(floor_idx, floor_count + 1):
-        elevator_configs[f'elevator{(floor - floor_idx) % elevator_count + 1}']['accessible_floors'].append(floor)
+        elevator_configs[f'elevator{(floor - floor_idx) % elevator_count + 1}']['floor_list'].append(floor)
 
     return elevator_configs
 

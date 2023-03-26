@@ -12,7 +12,6 @@ def elevator_reader(elevator_json) -> dict:  # 传入一个电梯配置文件的
     if elevator_parse_dict["mode"] == "config":
         return elevator_parse_dict
     elif elevator_parse_dict["mode"] == "scene":
-        # TODO list as configs
         return config_manager.generate_elevator_configs_from_scene(elevator_parse_dict)
     else:
         raise ValueError("'mode' in config file must be 'config' or 'scene'")

@@ -13,7 +13,7 @@ def get_frontend_conf():
     try:
         with open(path + "front_conf.json") as file:
             conf = UIConfig(json.load(file))
-    except:  # TODO 判断默认文件是否存在 优化try..except语句
+    except:
         with open(path + "default.json") as file:
             conf = UIConfig(json.load(file))
     finally:

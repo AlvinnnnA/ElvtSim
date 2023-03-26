@@ -27,7 +27,6 @@ class Reporter:
             # Add the file handler to the logger
             self.logger.addHandler(self.file_handler)
             self.user_logs = []
-            # TODO user log csv
         elif conf["mode"] == "sql":
             class sql_ops:
                 def __init__(self, conf):
