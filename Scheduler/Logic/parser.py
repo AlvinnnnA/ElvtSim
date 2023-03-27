@@ -1,4 +1,6 @@
 import csv
+from pprint import pprint
+
 from Scheduler.Logic import config_manager, user_fit
 from Scheduler.Thread.thread1 import Passenger
 import json
@@ -7,10 +9,10 @@ import os
 
 
 def elevator_reader(elevator_json) -> dict:  # 传入一个电梯配置文件的json
-
+    # 读取json文件
     with open(elevator_json, 'r') as f:
         elevator_parse_dict = json.load(f)
-    # for elevator in elevator_parse_dict[]:
+    # for elevator in elevator_parse_dict[]
     if elevator_parse_dict["mode"] == "config":
         return elevator_parse_dict
     elif elevator_parse_dict["mode"] == "scene":
@@ -163,8 +165,9 @@ def combine_all_and_output(config, passenger):
             config_dict = elevator_reader(config)
             if isinstance(config_dict,list):
                 print("INFO: Scene mode. Config is a list of dicts.")
+                return config_dict
                 # TODO handle this
-                raise NotImplementedError("Scene mode not implemented yet")
+                #raise NotImplementedError("Scene mode not implemented yet")
         elif isinstance(config, dict):
             config_dict = config
         else:
@@ -177,6 +180,8 @@ def combine_all_and_output(config, passenger):
 
     passenger_queue = get_passenger_info(passenger)
     config_dict = get_thread_config(config)
+    if isinstance(config_dict,list):
+        return config_dict
     floor_dict = {}
     #print(config_dict)
     for name, info in config_dict['elevators'].items():

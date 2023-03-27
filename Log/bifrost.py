@@ -27,7 +27,7 @@ class sql_ops:
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS user_log (batch_number integer, internal_time text, uid integer, event text)")
         self.conn.commit()
-        if batch_number<0:
+        if batch_number < 0:
             query_result = self.cursor.execute('SELECT max(batch_number) FROM metadata').fetchone()
             if query_result and query_result[0]:
                 self.batch_number = query_result[0] + 1
@@ -35,7 +35,7 @@ class sql_ops:
                 self.batch_number = 1
         else:
             self.batch_number = batch_number
-        #print(self.batch_number, str(dt.now()))
+        # print(self.batch_number, str(dt.now()))
         self.cursor.execute("insert into metadata (batch_number, timestamp_log) values (?,?)",
                             (self.batch_number, str(dt.now())))
         self.conn.commit()
@@ -77,13 +77,11 @@ class sql_ops:
         self.conn.commit()
 
 
-
-
 class Reporter:
-    def __init__(self, conf=REPORTER_DEFAULT_LOG):
+    def __init__(self, conf=REPORTER_DEFAULT_LOG,name="Default"):
         if conf["mode"] == "log":
             self.conf = conf
-            self.logger = logging.getLogger()
+            self.logger = logging.getLogger(name=name)
             # Set the logging level to INFO
             self.logger.setLevel(conf["level"])
             # Create a file handler and set its logging level to INFO
@@ -132,28 +130,28 @@ class Reporter:
         seconds = timestamp % 60
         return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
-    def into(self, timestamp: int, uid,floor,elevator):
+    def into(self, timestamp: int, uid, floor, elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["INTO", uid,formatted_timestamp,floor,elevator]
+        entry = ["INTO", uid, formatted_timestamp, floor, elevator]
         self.user_logs.append(entry)
 
-    def exit(self, timestamp: int, uid,floor,elevator):
+    def exit(self, timestamp: int, uid, floor, elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["EXIT", uid, formatted_timestamp,floor,elevator]
+        entry = ["EXIT", uid, formatted_timestamp, floor, elevator]
         # print(entry) if timestamp > convert_time.time_to_num("19:55:00") else None
         self.user_logs.append(entry)
 
-    def call(self, timestamp: int, uid, floor,elevator):
+    def call(self, timestamp: int, uid, floor, elevator):
         formatted_timestamp = self._format_timestamp(timestamp)
-        entry = ["CALL", uid, formatted_timestamp, floor,elevator]
+        entry = ["CALL", uid, formatted_timestamp, floor, elevator]
         # print(entry) if timestamp > convert_time.time_to_num("19:55:00") else None
         self.user_logs.append(entry)
 
-    def user_to_file(self):
+    def user_to_file(self, info:str=""):
         self.info("User logs are being stored in the file")
         if self.conf["mode"] == "log":
             # print(self.user_logs[:3])
-            with open(f"user_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv", "w") as f:
+            with open(f"user_{info}_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv", "w") as f:
                 for entry in self.user_logs:
                     f.write(",".join(map(str, entry)) + "\n")
         else:

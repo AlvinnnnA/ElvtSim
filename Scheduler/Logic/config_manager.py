@@ -1,3 +1,7 @@
+from copy import copy, deepcopy
+from pprint import pprint
+
+
 def generate_elevator_configs(building_info, strategy='segmented'):
     floor_count = building_info['floor_count']
     elevator_count = building_info['elevator_count']
@@ -58,8 +62,9 @@ def generate_high_low_odd_even_configs(floor_count, elevator_count):
 def generate_segmented_configs(floor_count, elevator_count):
     elevator_configs = {f'elevator{i + 1}': {'floor_list': [1]} for i in range(elevator_count)}
 
-    if (floor_count - 1) / elevator_count %1 != 0:
-        print('Warning: Segmented strategy requires an elevator count to be fraction of floor count-1. Rounding will occur and distribution won\'t be even')
+    if (floor_count - 1) / elevator_count % 1 != 0:
+        print(
+            'Warning: Segmented strategy requires an elevator count to be fraction of floor count-1. Rounding will occur and distribution won\'t be even')
     segment_size = (floor_count - 1) // elevator_count
     segments = [(2 + i * segment_size, 2 + (i + 1) * segment_size) for i in range(elevator_count - 1)]
     segments.append((2 + (elevator_count - 1) * segment_size, floor_count + 1))
@@ -124,20 +129,30 @@ def generate_custom_ratio_configs(floor_count, elevator_count, ratios):
     return elevator_configs
 
 
-
 def generate_elevator_configs_from_scene(building_info):
     gen_config_list = []
     for strategy in ['segmented', 'round_robin', 'even_odd', 'high_low_odd_even']:
+        #print(f"Generating configs for {strategy} strategy")
         elevator_configs = generate_elevator_configs(building_info['base'], strategy)
         if elevator_configs is False:
             continue
         if isinstance(elevator_configs, dict):
-            gen_config = building_info.copy()
-            gen_config['elevators'] = elevator_configs
+            gen_config = deepcopy(building_info)
+            gen_config['elevators'] = {}
+            for key, value in elevator_configs.items():
+                gen_config['elevators'][key] = {"event_enabled": True, "verbose": True, "state": "static",
+                                                "speed": "re-start", "initial_floor": 1,
+                                                "initial_dest": 1, "min_floor": 1,
+                                                "max_floor": gen_config['base']["floor_count"], "max_weight": 15,
+                                                "initial_time": "00:00:00",
+                                                "floor_list": value["floor_list"], "name": key}
+            # gen_config['elevators'] = elevator_configs
             gen_config['base']['config_strategy'] = strategy
+            # print(strategy)
             gen_config["mode"] = "config"
+            # pprint(gen_config)
             gen_config_list.append(gen_config)
-            #print(f"Strategy: {strategy}\nElevator Configurations:")
-            #pprint(elevator_configs)
-    #pprint(gen_config_list)
+            # print(f"Strategy: {strategy}\nElevator Configurations:")
+            # pprint(elevator_configs)
+        # pprint(gen_config_list)
     return gen_config_list
