@@ -58,7 +58,6 @@ class InterLayer:
             with open(name, "w") as f:
                 json.dump(scene, f, indent=4)
             scene_instances.append(InterLayer(config=name))
-            # TODO logging
             log_configs[
                 "path"] = f"Data/scene_{dt.strftime(dt.now(), '%m-%d-%H-%M')}_{scene['base']['config_strategy']}.log"
             scene_instances[-1].simlog = Reporter(log_configs,name=scene['base']['config_strategy'])
@@ -204,7 +203,6 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
                 thread.join()  # Wait for thread to finish
             scene_instance.simlog.info("Daemon: All threads finished")
             scene_instance.simlog.user_to_file(info=final['base']['config_strategy'])
-    # TODO fix this
 
 
 if __name__ == "__main__":
@@ -222,7 +220,7 @@ if __name__ == "__main__":
     #     if value["max_floor"] < final['base']['floor_count']:
     #         raise Exception("Elevator {} max floor is less than floor count".format(key))
     # share_list = classify_elevator(final, elevator_lut)
-    
+
     # main(config="Data/scene.json", user_csv=user_csv,
     #      log_configs={
     #          "mode": "log",
