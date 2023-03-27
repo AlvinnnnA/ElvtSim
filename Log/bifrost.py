@@ -78,7 +78,7 @@ class sql_ops:
 
 
 class Reporter:
-    def __init__(self, conf=REPORTER_DEFAULT_LOG,name="Default"):
+    def __init__(self, conf=REPORTER_DEFAULT_LOG, name="Default"):
         if conf["mode"] == "log":
             self.conf = conf
             self.logger = logging.getLogger(name=name)
@@ -147,11 +147,12 @@ class Reporter:
         # print(entry) if timestamp > convert_time.time_to_num("19:55:00") else None
         self.user_logs.append(entry)
 
-    def user_to_file(self, info:str=""):
+    def user_to_file(self, info: str = ""):
         self.info("User logs are being stored in the file")
         if self.conf["mode"] == "log":
             # print(self.user_logs[:3])
             with open(f"user_{info}_{dt.strftime(dt.now(), '%m-%d-%H-%M')}.csv", "w") as f:
+                f.write("action,uid,time,location,elevator\n")
                 for entry in self.user_logs:
                     f.write(",".join(map(str, entry)) + "\n")
         else:
