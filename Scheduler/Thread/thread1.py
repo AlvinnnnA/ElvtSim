@@ -53,7 +53,7 @@ def choose_up(passenger):  # 选择上行电梯
     min_elevator = min(gap, key=gap.get)  # 找出最小的楼层差
     passenger.into_elevator = min_elevator
     min_elevator.waiting_list.append(passenger)
-    min_elevator.logger.call(min_elevator.elevator_clock, passenger.uid, passenger.dest_floor, min_elevator.name)
+    min_elevator.logger.call(min_elevator.elevator_clock, passenger.uid, passenger.src_floor, min_elevator.name)
 
 
 def choose_down(passenger):  # 选择下行电梯
@@ -71,7 +71,7 @@ def choose_down(passenger):  # 选择下行电梯
     min_elevator = min(gap, key=gap.get)  # 找出最小的楼层差
     passenger.into_elevator = min_elevator
     min_elevator.waiting_list.append(passenger)
-    min_elevator.logger.call(min_elevator.elevator_clock, passenger.uid, passenger.dest_floor, min_elevator.name)
+    min_elevator.logger.call(min_elevator.elevator_clock, passenger.uid, passenger.src_floor, min_elevator.name)
 
 
 class Elevator:
@@ -357,7 +357,7 @@ class Elevator:
         if not self.acceleration_switch:
             for passenger in self.total_list:
                 if passenger.call_time == self.elevator_clock:
-                    self.logger.call(self.elevator_clock, passenger.uid, passenger.dest_floor, self.name)
+                    self.logger.call(self.elevator_clock, passenger.uid, passenger.src_floor, self.name)
                     passenger.on_called(passenger.into_elevator)
 
     def check_min(self):  # 遍历电梯队列与等待队列，计算最低到达楼层
