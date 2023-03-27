@@ -157,7 +157,7 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
         list_put = False
         for elevator in elevator_lut.values():
             if not list_put:
-                elevator.share_list = share_list
+                elevator.shared_list = share_list
                 list_put = True
             elevator.global_clock = global_clock
             elevator.global_condition = global_condition
@@ -189,7 +189,7 @@ def main(config=DEFAULT_CONFIG, user_csv=DEFAULT_USER_CSV, use_random=False, ran
             list_put = False
             for elevator in elevator_lut.values():
                 if not list_put:
-                    elevator.share_list = share_list
+                    elevator.shared_list = share_list
                     list_put = True
                 elevator.global_clock = global_clock
                 elevator.global_condition = global_condition
@@ -221,8 +221,8 @@ if __name__ == "__main__":
     #         raise Exception("Elevator {} max floor is less than floor count".format(key))
     # share_list = classify_elevator(final, elevator_lut)
 
-    # main(config="Data/scene.json", user_csv=user_csv,
-    #      log_configs={
-    #          "mode": "log",
-    #          "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
-    #          "level": "INFO"}, use_random=True, random_args=[10000, 12, '07:59:00', '20:00:00'])
+    main(config='Data/scene_03-27-18-35_even_odd.json', user_csv=user_csv,
+         log_configs={
+             "mode": "log",
+             "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
+             "level": "INFO"}, use_random=True, random_args=[20, 12, '07:59:00', '20:00:00'])
