@@ -425,7 +425,7 @@ class Passenger:
         self.peak_hours = None  # 乘客的高峰时间
 
     def __repr__(self):
-        return f"User {self.uid}, {convert_time.num_to_time(self.call_time)}, src {self.src_floor}, dest {self.dest_floor} "
+        return f"User {self.uid}, {convert_time.num_to_time(self.call_time)}, src {self.src_floor}, dest {self.dest_floor} elevator {self.into_elevator} possible {self.maybe_into_elevator}"
 
     def on_called(self, elevator_num):  # 将乘客加入等待队列
         elevator_num.waiting_list.append(self)
