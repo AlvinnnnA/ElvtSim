@@ -11,6 +11,11 @@ DEFAULT_CONF = {'event_enabled': True, 'verbose': True, 'state': 'static', 'spee
                 'floor_list': [1, 2, 3, 4]}
 
 
+class GlobalClock:
+    def __init__(self, elevators):
+        self.value = convert_time.time_to_num("00:00:00")
+        self.elevators = elevators
+
 def run_in_thread(thread_name):  # 限制函数只能在指定线程中运行
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -23,7 +28,7 @@ def run_in_thread(thread_name):  # 限制函数只能在指定线程中运行
     return decorator
 
 
-def share_call_elevator(share_list):  # 共享队列的电梯呼叫
+def share_call_elevator(share_list,global_clock):  # 共享队列的电梯呼叫
     for passenger in share_list:
         if passenger.call_time == global_clock.value:  # 如果乘客的呼叫时间等于电梯的当前时间
             if passenger.src_floor < passenger.dest_floor:  # 上行
@@ -67,7 +72,8 @@ def choose_down(passenger):  # 选择下行电梯
 
 
 class Elevator:
-    def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint(), shared=False):  # 创建一个电梯类，并且赋予电梯相应的属性
+    def __init__(self, conf_dict=None, event_queue=None, logger=DefaultPrint(), shared=False,global_clock=GlobalClock(None)):  # 创建一个电梯类，并且赋予电梯相应的属性
+        # self.global_clock = global_clock
         if conf_dict is None:
             conf_dict = DEFAULT_CONF
         self.__event_enabled = conf_dict['event_enabled']  # 是否启用事件处理器报送
@@ -98,7 +104,7 @@ class Elevator:
         self.MAX_WEIGHT = conf_dict['max_weight']  # 电梯的最高搭乘人数为15人
         self.available_floors = conf_dict['floor_list']  # 电梯的可用楼层
         self.elevator_clock = convert_time.time_to_num(conf_dict['initial_time'])  # 电梯的时间，也可以说是外界时间，保存的形式是时间戳（数字形式）
-        self.global_clock = None  # 全局时间，保存的形式是时间戳（数字形式）
+        self.global_clock = global_clock  # 全局时间，保存的形式是时间戳（数字形式）
         self.global_condition = None
         self.elevator_timestamp = []  # 乘客呼叫的时间戳，将乘客分配好之后，将乘客呼叫电梯的时间戳放入这里
         self.acceleration_switch = True  # 电梯进行时间加速的按钮，默认是打开状态
@@ -327,7 +333,7 @@ class Elevator:
                 if not self.shared_list:
                     pass
                 else:
-                    share_call_elevator(self.shared_list)
+                    share_call_elevator(self.shared_list,self.global_clock)
         else:
             self.normal = False
             #print("Time out")
@@ -450,11 +456,6 @@ class Passenger:
                     random.randint(convert_time.time_to_num(start_time), convert_time.time_to_num(end_time)))))
         return born_passenger_list
 
-
-class GlobalClock:
-    def __init__(self, elevators):
-        self.value = convert_time.time_to_num("00:00:00")
-        self.elevators = elevators
 
 
 if __name__ == '__main__':
