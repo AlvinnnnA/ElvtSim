@@ -397,9 +397,9 @@ class Elevator:
                         self.logger.warning(
                             f"Incorrect Floor parameter entered for passenger {passenger} Entered {passenger.dest_floor} Minimum floor for elevator is {self.MIN_FLOOR}")
                     else:
+                        self.logger.into(self.elevator_clock, passenger.uid, self.current_floor, self.name)
                         if passenger.call_time in self.elevator_timestamp:
                             self.elevator_timestamp.remove(passenger.call_time)  # 当乘客进入的时候将其呼叫时间从时间戳中去除
-                            self.logger.into(self.elevator_clock, passenger.uid,self.current_floor,self.name)
             elif len(self.elevator_list) == self.MAX_WEIGHT:
                 self.logger.debug('%s FULL. NO enter at %d' % (self.name, self.current_floor))
                 break
