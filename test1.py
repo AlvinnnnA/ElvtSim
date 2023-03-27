@@ -47,7 +47,7 @@ def allocate_common_passenger(groups):  # 分配共同乘客
 
 if __name__ == '__main__':
     abspath_config = os.path.abspath("Data/config.json")
-    final = daemon.main(abspath_config, use_random=True, random_args=[100, 9, "08:00:00", "20:00:00"])
+    final = daemon.main(abspath_config, use_random=True, random_args=[10, 9, "08:00:00", "20:00:00"])
     # pprint(final)
     # print(type(final),['elevators'])
     elevator_list = list(final['elevators'].keys())

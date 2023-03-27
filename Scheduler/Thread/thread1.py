@@ -37,6 +37,7 @@ def share_call_elevator(share_list,global_clock):  # 共享队列的电梯呼叫
                 choose_down(passenger)
 
 
+
 def choose_up(passenger):  # 选择上行电梯
     gap = {}
     for elevator in passenger.maybe_into_elevator:  # 遍历乘客可能进入的电梯
@@ -52,6 +53,7 @@ def choose_up(passenger):  # 选择上行电梯
     min_elevator = min(gap, key=gap.get)  # 找出最小的楼层差
     passenger.into_elevator = min_elevator
     min_elevator.waiting_list.append(passenger)
+    min_elevator.logger.call(min_elevator.elevator_clock, passenger.uid, passenger.dest_floor, min_elevator.name)
 
 
 def choose_down(passenger):  # 选择下行电梯
@@ -69,6 +71,7 @@ def choose_down(passenger):  # 选择下行电梯
     min_elevator = min(gap, key=gap.get)  # 找出最小的楼层差
     passenger.into_elevator = min_elevator
     min_elevator.waiting_list.append(passenger)
+    min_elevator.logger.call(min_elevator.elevator_clock, passenger.uid, passenger.dest_floor, min_elevator.name)
 
 
 class Elevator:
@@ -125,7 +128,7 @@ class Elevator:
             self.made_in_heaven()  # 电梯开始之后先判断是否应该进行时间加速，再跑
             self.run_elevator()
         while self.elevator_clock < convert_time.time_to_num("24:00:00"):
-            # self.logger.debug(f"main touchsdgd at elevator clock {self.elevator_clock}")
+
             self.increment_and_sync_time()
             self.run_elevator()
         # print(f"{self.name} finished")
