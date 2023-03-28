@@ -6,7 +6,7 @@
     "event_enabled": true,
     "verbose": true,
     "elevator_count": 4,
-    "floor_count": 12,
+    "floor_count": 9,
     "ground_floor": 1,
     "operate_time": "08:00:00",
     "stop_time": "20:00:00",

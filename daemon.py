@@ -126,7 +126,7 @@ def classify_elevator(final, elevator_lut=None):  # 分类电梯，并将独立�
         raise RuntimeError("Daemon: No passenger detected")
 
     # queue_list = False
-    pprint(queue_list)
+    # pprint(queue_list)
     return queue_list
 
 
@@ -221,8 +221,8 @@ if __name__ == "__main__":
     #         raise Exception("Elevator {} max floor is less than floor count".format(key))
     # share_list = classify_elevator(final, elevator_lut)
 
-    main(config='Data/scene_03-27-18-35_even_odd.json', user_csv=user_csv,
+    main(config='Data/scene.json', user_csv=user_csv,
          log_configs={
              "mode": "log",
              "path": f"Data/{dt.strftime(dt.now(), '%m-%d-%H-%M')}.log",
-             "level": "INFO"}, use_random=True, random_args=[20, 12, '07:59:00', '20:00:00'])
+             "level": "INFO"}, use_random=True, random_args=[1000, 9, '07:59:00', '20:00:00'])
